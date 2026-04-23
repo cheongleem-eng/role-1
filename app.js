@@ -570,8 +570,14 @@ function generateExcel(rows, filename) {
 // UI HELPERS
 // ============================================================
 function updatePhaseNavActive(activeIndex) {
+  const nav = document.getElementById('phase-nav');
   document.querySelectorAll('#phase-nav .phase-pill').forEach((p, i) => {
     p.classList.toggle('active', i === activeIndex);
+    if (i === activeIndex) {
+      // 해당 버튼이 화면에 보이도록 가로 스크롤 이동
+      const scrollLeft = p.offsetLeft - (nav.offsetWidth / 2) + (p.offsetWidth / 2);
+      nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    }
   });
 }
 
