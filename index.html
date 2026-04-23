@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>제주항공 비상훈련 롤플레잉</title>
   <link rel="stylesheet" href="style.css" />
   <!-- 🔥 Firebase SDK (compat version — Firebase Studio 호환) -->
@@ -10,30 +10,38 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <!-- SheetJS for Excel Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
   <!-- ===================== LOGIN SCREEN ===================== -->
   <div id="screen-login" class="screen active">
-    <div class="login-card">
-      <div class="logo-wrap">
-        <img src="LOGO.png" alt="제주항공 로고" class="logo-img">
-        <p class="logo-sub">Cabin Training Roleplaying System</p>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="logo-wrap">
+          <img src="LOGO.png" alt="제주항공 로고" class="logo-img">
+          <p class="logo-sub">Cabin Training System</p>
+        </div>
+        <div class="form-group">
+          <label>나의 이름 (승객 역할 / 평가자)</label>
+          <input type="text" id="input-evaluator-name" placeholder="본인 이름을 입력하세요" />
+        </div>
+        <div class="form-group">
+          <label>평가 대상 (객실승무원 역할)</label>
+          <input type="text" id="input-trainee-name" placeholder="평가할 승무원 이름 입력" />
+        </div>
+        <div class="form-group">
+          <label>훈련 날짜</label>
+          <input type="date" id="input-date" />
+        </div>
+        <button class="btn-primary" onclick="startSession()">
+          <i class="ph ph-airplane-takeoff"></i> 훈련 시작
+        </button>
+        <button class="btn-outline" style="margin-top: 16px; border-color: var(--text-secondary); color: var(--text-secondary);" onclick="promptAdminLogin()">
+          <i class="ph ph-lock-key"></i> 관리자 메뉴
+        </button>
       </div>
-      <div class="form-group">
-        <label>나의 이름 (승객 역할 / 평가자)</label>
-        <input type="text" id="input-evaluator-name" placeholder="본인 이름을 입력하세요" />
-      </div>
-      <div class="form-group">
-        <label>평가 대상 (객실승무원 역할)</label>
-        <input type="text" id="input-trainee-name" placeholder="평가할 승무원 이름 입력" />
-      </div>
-      <div class="form-group">
-        <label>훈련 날짜</label>
-        <input type="date" id="input-date" />
-      </div>
-      <button class="btn-primary" onclick="startSession()">훈련 시작</button>
-      <button class="btn-outline" style="margin-top: 12px; border-color: var(--text-secondary); color: var(--text-secondary);" onclick="promptAdminLogin()">🔒 관리자 메뉴 (데이터 다운로드)</button>
     </div>
   </div>
 
@@ -43,81 +51,93 @@
       <div class="header-left">
         <span class="header-badge">롤플레잉</span>
       </div>
-      <div class="header-center">
-        <span id="header-names"></span>
+      <div class="header-center" id="header-names">
+        <!-- Rendered via JS -->
       </div>
       <div class="header-right">
-        <button class="btn-icon" onclick="goHome()">🏠</button>
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-house"></i>
+        </button>
       </div>
     </header>
 
     <!-- Phase navigation -->
     <div class="phase-nav" id="phase-nav"></div>
 
-    <!-- Phase card -->
-    <div class="phase-card" id="phase-card">
-      <div class="phase-header">
-        <span class="phase-number" id="phase-number"></span>
-        <h2 class="phase-title" id="phase-title"></h2>
-      </div>
-
-      <!-- Passenger Instruction Section -->
-      <div id="section-roleplay">
-        <div class="instruction-box" id="instruction-box">
-          <p class="instruction-label">🎬 나의 행동 지시</p>
-          <p class="instruction-text" id="instruction-text"></p>
+    <!-- Scrollable Content Area -->
+    <div class="scroll-content">
+      <div class="phase-card" id="phase-card">
+        <div class="phase-header">
+          <span class="phase-number" id="phase-number"></span>
+          <h2 class="phase-title" id="phase-title"></h2>
         </div>
-        <div class="question-box" id="question-box" style="display:none;">
-          <p class="question-label">💬 승무원에게 이 질문을 하세요</p>
-          <p class="question-text" id="question-text"></p>
-        </div>
-        <div style="padding: 16px 24px 24px;">
-          <button class="btn-primary" onclick="showEvalSection()">승무원 평가하기 📋</button>
-        </div>
-      </div>
 
-      <!-- Evaluator Rating Section -->
-      <div id="section-evaluate" style="display:none;">
-        <p class="eval-criteria-label">📋 승무원 평가 기준 (확인용)</p>
-        <ul class="eval-criteria" id="eval-criteria"></ul>
-
-        <div class="rating-section">
-          <p class="rating-label">승무원 종합 평가 (클릭하세요)</p>
-          <div class="emoji-rating" id="emoji-rating">
-            <button class="emoji-btn" data-score="1" onclick="setRating(this, 1)" title="매우 불만족">😞</button>
-            <button class="emoji-btn" data-score="2" onclick="setRating(this, 2)" title="불만족">😕</button>
-            <button class="emoji-btn" data-score="3" onclick="setRating(this, 3)" title="보통">😐</button>
-            <button class="emoji-btn" data-score="4" onclick="setRating(this, 4)" title="만족">🙂</button>
-            <button class="emoji-btn" data-score="5" onclick="setRating(this, 5)" title="매우 만족">😄</button>
+        <!-- Passenger Instruction Section -->
+        <div id="section-roleplay">
+          <div class="instruction-box" id="instruction-box">
+            <p class="instruction-label"><i class="ph-fill ph-check-circle"></i> 나의 행동 지시</p>
+            <p class="instruction-text" id="instruction-text"></p>
           </div>
-          <div class="rating-labels-row">
-            <span>매우 불만족</span><span>불만족</span><span>보통</span><span>만족</span><span>매우 만족</span>
+          <div class="question-box" id="question-box" style="display:none;">
+            <p class="question-label"><i class="ph-fill ph-chat-circle-text"></i> 승무원에게 이 질문을 하세요</p>
+            <p class="question-text" id="question-text"></p>
+          </div>
+          <div style="padding: 16px 24px 24px;">
+            <button class="btn-primary" onclick="showEvalSection()">
+              승무원 평가하기 <i class="ph-bold ph-arrow-right"></i>
+            </button>
           </div>
         </div>
 
-        <div class="form-group" style="padding: 0 24px;">
-          <label>코멘트 (선택)</label>
-          <textarea id="eval-comment" placeholder="추가 의견을 입력하세요..." rows="2"></textarea>
-        </div>
+        <!-- Evaluator Rating Section -->
+        <div id="section-evaluate" style="display:none;">
+          <p class="eval-criteria-label"><i class="ph-fill ph-list-checks"></i> 승무원 평가 기준 (확인용)</p>
+          <ul class="eval-criteria" id="eval-criteria"></ul>
 
-        <div style="padding: 16px 24px 24px;">
-          <button class="btn-outline" onclick="showRoleplaySection()" style="margin-bottom: 12px;">◀ 다시 지시사항 보기</button>
-          <button class="btn-primary" style="margin-top: 0;" onclick="saveEval()">평가 저장 후 다음 💾</button>
-          <div class="save-toast" id="save-toast">✅ 저장되었습니다!</div>
+          <div class="rating-section">
+            <p class="rating-label">승무원 종합 평가 (클릭하세요)</p>
+            <div class="emoji-rating" id="emoji-rating">
+              <button class="emoji-btn" data-score="1" onclick="setRating(this, 1)" title="매우 불만족"><i class="ph-fill ph-smiley-sad"></i></button>
+              <button class="emoji-btn" data-score="2" onclick="setRating(this, 2)" title="불만족"><i class="ph-fill ph-smiley-meh"></i></button>
+              <button class="emoji-btn" data-score="3" onclick="setRating(this, 3)" title="보통"><i class="ph-fill ph-smiley-blank"></i></button>
+              <button class="emoji-btn" data-score="4" onclick="setRating(this, 4)" title="만족"><i class="ph-fill ph-smiley"></i></button>
+              <button class="emoji-btn" data-score="5" onclick="setRating(this, 5)" title="매우 만족"><i class="ph-fill ph-smiley-wink"></i></button>
+            </div>
+            <div class="rating-labels-row">
+              <span>매우 불만족</span><span>불만족</span><span>보통</span><span>만족</span><span>매우 만족</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="padding: 0 24px;">
+            <label>코멘트 (선택)</label>
+            <textarea id="eval-comment" placeholder="추가 의견을 입력하세요..." rows="3"></textarea>
+          </div>
+
+          <div style="padding: 16px 24px 24px;">
+            <button class="btn-outline" onclick="showRoleplaySection()" style="margin-bottom: 16px;">
+              <i class="ph-bold ph-arrow-left"></i> 다시 지시사항 보기
+            </button>
+            <button class="btn-primary" style="margin-top: 0;" onclick="saveEval()">
+              평가 저장 후 다음 <i class="ph-bold ph-floppy-disk"></i>
+            </button>
+            <div class="save-toast" id="save-toast"><i class="ph-bold ph-check"></i> 저장되었습니다!</div>
+          </div>
         </div>
+      </div>
+      
+      <!-- Summary Button inside scroll to be accessible without obscuring -->
+      <div style="padding: 0 16px 24px;">
+        <button class="btn-outline" style="border-color: var(--text-secondary); color: var(--text-secondary);" onclick="showSummary()">
+          <i class="ph-bold ph-chart-bar"></i> 전체 결과 보기
+        </button>
       </div>
     </div>
 
-    <!-- Navigation buttons -->
-    <div class="nav-buttons">
-      <button class="btn-secondary" id="btn-prev" onclick="changePhase(-1)">◀ 이전</button>
+    <!-- Navigation buttons fixed at bottom -->
+    <div class="bottom-nav">
+      <button class="btn-secondary" id="btn-prev" onclick="changePhase(-1)"><i class="ph-bold ph-caret-left"></i> 이전</button>
       <span class="phase-indicator" id="phase-indicator"></span>
-      <button class="btn-secondary" id="btn-next" onclick="changePhase(1)">다음 ▶</button>
-    </div>
-
-    <!-- Summary button -->
-    <div style="padding: 0 16px 16px;">
-      <button class="btn-outline" onclick="showSummary()">📊 전체 결과 보기</button>
+      <button class="btn-secondary" id="btn-next" onclick="changePhase(1)">다음 <i class="ph-bold ph-caret-right"></i></button>
     </div>
   </div>
 
@@ -125,17 +145,25 @@
   <div id="screen-summary" class="screen">
     <header class="app-header">
       <div class="header-left">
-        <button class="btn-icon" onclick="backToMain()">◀</button>
+        <button class="btn-icon" onclick="backToMain()">
+          <i class="ph-bold ph-caret-left"></i>
+        </button>
       </div>
-      <div class="header-center">평가 요약</div>
+      <div class="header-center">전체 결과 요약</div>
       <div class="header-right">
-        <button class="btn-icon" onclick="goHome()">🏠</button>
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph-bold ph-house"></i>
+        </button>
       </div>
     </header>
-    <div class="summary-content" id="summary-content"></div>
-    <div style="padding:16px;">
-      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px; text-align:center;">모든 평가 데이터는 서버(또는 기기)에 안전하게 저장되었습니다.<br>전체 데이터는 관리자 메뉴에서 다운로드할 수 있습니다.</p>
-      <button class="btn-primary" onclick="goHome()">메인 화면으로 돌아가기 🏠</button>
+    
+    <div class="scroll-content">
+      <div class="summary-content" id="summary-content"></div>
+      
+      <div style="padding:0 16px 24px;">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px; text-align:center;">모든 평가 데이터는 클라우드에 안전하게 저장되었습니다.<br>전체 데이터는 관리자 메뉴에서 다운로드할 수 있습니다.</p>
+        <button class="btn-primary" onclick="goHome()">메인 화면으로 돌아가기 <i class="ph-bold ph-house"></i></button>
+      </div>
     </div>
   </div>
 
@@ -143,19 +171,28 @@
   <div id="screen-admin" class="screen">
     <header class="app-header">
       <div class="header-left">
-        <button class="btn-icon" onclick="goHome()">◀</button>
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph-bold ph-caret-left"></i>
+        </button>
       </div>
-      <div class="header-center">🔒 관리자 대시보드</div>
+      <div class="header-center"><i class="ph-fill ph-lock-key"></i> 관리자 대시보드</div>
       <div class="header-right">
-        <button class="btn-icon" onclick="goHome()">🏠</button>
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph-bold ph-house"></i>
+        </button>
       </div>
     </header>
-    <div style="padding: 20px 16px;">
-      <p style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">일자별 데이터 다운로드</p>
-      <div id="admin-date-list" style="display:flex; flex-direction:column; gap:12px;"></div>
-      
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
-        <button class="btn-outline" onclick="downloadAllExcel()">📥 전체 데이터 통합 다운로드 (Excel)</button>
+    
+    <div class="scroll-content">
+      <div class="admin-content">
+        <p style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary);">일자별 데이터 다운로드</p>
+        <div id="admin-date-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+        
+        <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--border);">
+          <button class="btn-outline" style="border-color:var(--success); color:var(--success);" onclick="downloadAllExcel()">
+            <i class="ph-bold ph-download-simple"></i> 전체 데이터 통합 다운로드
+          </button>
+        </div>
       </div>
     </div>
   </div>

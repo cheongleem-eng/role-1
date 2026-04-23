@@ -103,7 +103,13 @@ const PHASES = [
   }
 ];
 
-const EMOJI_MAP   = { 1: '😞', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
+const EMOJI_MAP   = { 
+  1: '<i class="ph-fill ph-smiley-sad"></i>', 
+  2: '<i class="ph-fill ph-smiley-meh"></i>', 
+  3: '<i class="ph-fill ph-smiley-blank"></i>', 
+  4: '<i class="ph-fill ph-smiley"></i>', 
+  5: '<i class="ph-fill ph-smiley-wink"></i>' 
+};
 const SCORE_LABEL = { 1: '매우 불만족', 2: '불만족', 3: '보통', 4: '만족', 5: '매우 만족' };
 
 // ============================================================
@@ -212,7 +218,7 @@ async function startSession() {
 
   hideAllScreens();
   document.getElementById('screen-main').classList.add('active');
-  document.getElementById('header-names').textContent = `🙋 ${eName} ▶ 🧑‍✈️ ${tName}`;
+  document.getElementById('header-names').innerHTML = `<i class="ph-fill ph-user" style="color:var(--jeju-orange)"></i> ${eName} <i class="ph-bold ph-caret-right" style="margin:0 4px; color:var(--text-secondary)"></i> <i class="ph-fill ph-airplane-tilt" style="color:var(--jeju-orange)"></i> ${tName}`;
 
   buildPhaseNav();
   
@@ -357,7 +363,7 @@ function showSummary() {
   const headerInfo = document.createElement('div');
   headerInfo.className = 'summary-header-info';
   headerInfo.innerHTML = `
-    <h2>🧑‍✈️ 대상: ${state.traineeName} 승무원</h2>
+    <h2><i class="ph-fill ph-airplane-tilt" style="color:var(--jeju-orange)"></i> 대상: ${state.traineeName} 승무원</h2>
     <p>훈련 날짜: ${state.date} &nbsp;|&nbsp; 평가자: ${state.evaluatorName}</p>
     <span class="fb-badge ${fbReady ? '' : 'offline'}">${fbReady ? '🔥 Firestore 연동됨' : '📴 오프라인 모드'}</span>
     <div class="avg-score-wrap">
@@ -397,7 +403,7 @@ function showSummary() {
   const avgEl = document.getElementById('avg-score-val');
   if (count > 0) {
     const avg      = (totalScore / count).toFixed(1);
-    const avgEmoji = avg >= 4.5 ? '😄' : avg >= 3.5 ? '🙂' : avg >= 2.5 ? '😐' : avg >= 1.5 ? '😕' : '😞';
+    const avgEmoji = avg >= 4.5 ? '<i class="ph-fill ph-smiley-wink"></i>' : avg >= 3.5 ? '<i class="ph-fill ph-smiley"></i>' : avg >= 2.5 ? '<i class="ph-fill ph-smiley-blank"></i>' : avg >= 1.5 ? '<i class="ph-fill ph-smiley-meh"></i>' : '<i class="ph-fill ph-smiley-sad"></i>';
     avgEl.textContent = `${avgEmoji} ${avg} / 5 (${count}/${PHASES.length}개 항목 평가)`;
   } else {
     avgEl.textContent = '평가 항목 없음';
