@@ -1,5 +1,5 @@
 /* ============================================================
-   제주항공 비상훈련 롤플레잉 — app.js (Final Stable Version)
+   제주항공 비상훈련 롤플레잉 — app.js
    ============================================================ */
 
 // 🔥 FIREBASE 설정 — 본인의 프로젝트 값으로 교체되어 있어야 합니다!
@@ -16,9 +16,9 @@ const PHASES = [
   { id: 1, title: "주의집중 방송", instruction: "당신은 음악을 듣고 있는 승객입니다.\n이어폰을 착용하고 계속 음악을 듣고 있으세요.\n승무원의 별도 지시가 있을 때까지 역할을 유지하세요.", question: null, evalCriteria: ["이어폰 착용 승객에게 개별 접근하여 주의를 환기시켰는가", "명확하고 침착한 목소리로 안내했는가", "승객과 적절한 아이컨택을 유지했는가"] },
   { id: 2, title: "서비스 용품 수거 및 승객 좌석 점검", instruction: "좌석에 착석한 후 등받이를 뒤로 젖혀주세요.\n승무원의 별도 지시가 있을 때까지 그대로 유지하세요.", question: null, evalCriteria: ["서비스 용품을 신속하게 수거했는가", "등받이가 젖혀진 승객에게 원위치를 요청했는가", "정중하고 단호한 어조로 요청을 전달했는가"] },
   { id: 3, title: "탈출차림 준비 및 수하물 정리·보관", instruction: "소지한 가방을 선반에 넣으려 하지만 선반에 공간이 없습니다.\n앉지 말고 두리번거리며 승무원의 지시를 기다리세요.", question: null, evalCriteria: ["수하물 정리 안내를 명확하게 전달했는가", "선반 공간이 없는 승객에게 적절한 대안을 제시했는가", "탈출 시 방해가 되는 물품을 조치했는가"] },
-  { id: 4, title: "좌석벨트 착용", instruction: "좌석벨트를 풀어보려 하지만 잘 풀어지지 않아 버클을 만지작거리세요.", question: "저, 죄송한데요. 좌석벨트가 잘 안 풀려요.\n어떻게 푸는 건가요? 그리고 언제 풀어도 되나요?", evalCriteria: ["착용 및 해제 방법을 정확하게 시범 보였는가", "미착용 승객에게 적절한 조치를 했는가", "해제 가능 시점에 대해 명확히 설명했는가"] },
+  { id: 4, title: "좌석벨트 착용", instruction: "좌석벨트를 풀어보려 하지만 잘 풀어지지 않아 버클 부분을 계속 만지작거리세요.\n승무원의 별도 지시가 있을 때까지 역할을 유지하세요.", question: "저, 죄송한데요. 좌석벨트가 잘 안 풀려요.\n어떻게 푸는 건가요? 그리고 언제 풀어도 되나요?", evalCriteria: ["착용 및 해제 방법을 정확하게 시범 보였는가", "미착용 승객에게 적절한 조치를 했는가", "해제 가능 시점에 대해 명확히 설명했는가"] },
   { id: 5, title: "충격방지자세", instruction: "충격방지자세를 언제 취해야 하는지 모릅니다.\n승무원이 지나갈 때 손을 들거나 질문하세요.", question: "저, 충격방지자세는 언제 취해야 하나요?\n방법도 알려주실 수 있나요?", evalCriteria: ["충격방지자세를 정확하게 시범 보였는가", "자세를 취해야 하는 시점을 명확히 설명했는가", "승객이 자세를 올바르게 취하는지 확인했는가"] },
-  { id: 6, title: "탈출구 위치 안내 (착수 시)", instruction: "항공기 후방 승객입니다. 뒤쪽 탈출구가 가깝지만 왜 사용 불가능한지 궁금합니다.", question: "저 뒤쪽에도 탈출구가 있는데, 왜 사용할 수 없다고 하나요?\n이유를 설명해 주실 수 있어요?", evalCriteria: ["각 탈출구 위치와 사용 가능 여부를 명확히 안내했는가", "착수 시 사용 불가 탈출구에 대한 이유를 설명했는가", "대체 탈출구로 승객을 유도했는가"] },
+  { id: 6, title: "탈출구 위치 안내 (착수 시)", instruction: "항공기 후방 승객입니다. 뒤쪽 탈출구가 가깝지만 왜 사용 불가능한지 궁금합니다.", question: "저 뒤쪽에도 탈출구가 있는데, 왜 사용할 수 없다고 하나요?\n이유를 설명해 주실 수 있어요?", evalCriteria: ["각 탈출구 위치와 사용 가능 여부를 명확하게 안내했는가", "착수 시 사용 불가 탈출구에 대한 이유를 설명했는가", "대체 탈출구로 승객을 유도했는가"] },
   { id: 7, title: "협조자 선정", instruction: "당사 직원 티켓으로 탑승한 승무원입니다.\n승무원이 지나갈 때 손을 드세요.", question: null, evalCriteria: ["비상시 협조 가능한 승객을 적극적으로 찾았는가", "협조자에게 명확한 역할과 임무를 부여했는가", "협조자와 효과적인 소통을 유지했는가"] }
 ];
 
@@ -35,9 +35,6 @@ let db = null;
 let fbReady = false;
 let state = { evaluatorName: '', traineeName: '', date: '', currentPhase: 0, evaluations: {} };
 
-// ============================================================
-// INITIALIZATION
-// ============================================================
 function initFirebase() {
   try {
     if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -48,30 +45,18 @@ function initFirebase() {
     }
   } catch (e) {
     console.warn('⚠️ Firebase 연결 실패 (오프라인 모드):', e.message);
-    fbReady = false;
   }
 }
 
-// ============================================================
-// SESSION MANAGEMENT
-// ============================================================
 async function startSession() {
   const eName = document.getElementById('input-evaluator-name').value.trim();
   const tName = document.getElementById('input-trainee-name').value.trim();
   const date = document.getElementById('input-date').value;
-
   if (!eName || !tName || !date) { alert('평가자, 대상 이름, 날짜를 모두 입력해주세요.'); return; }
-
   state = { evaluatorName: eName, traineeName: tName, date, currentPhase: 0, evaluations: {} };
-
   hideAllScreens();
   document.getElementById('screen-main').classList.add('active');
-  document.getElementById('header-names').innerHTML = `
-    <i class="ph-fill ph-user" style="color:var(--jeju-orange)"></i> ${eName} 
-    <i class="ph-bold ph-caret-right" style="margin:0 4px; color:var(--text-secondary)"></i> 
-    <i class="ph-fill ph-airplane-tilt" style="color:var(--jeju-orange)"></i> ${tName}
-  `;
-
+  document.getElementById('header-names').innerHTML = `<i class="ph-fill ph-user"></i> ${eName} <i class="ph-bold ph-caret-right"></i> <i class="ph-fill ph-airplane-tilt"></i> ${tName}`;
   buildPhaseNav();
   if (fbReady) await loadSessionFromFirestore();
   renderPhase(0);
@@ -80,11 +65,9 @@ async function startSession() {
 function renderPhase(index) {
   const phase = PHASES[index];
   state.currentPhase = index;
-
   document.getElementById('phase-number').textContent = phase.id;
   document.getElementById('phase-title').textContent = phase.title;
   document.getElementById('instruction-text').textContent = phase.instruction;
-
   const qBox = document.getElementById('question-box');
   if (phase.question) {
     document.getElementById('question-text').textContent = phase.question;
@@ -92,72 +75,46 @@ function renderPhase(index) {
   } else {
     qBox.style.display = 'none';
   }
-
-  // Update Rating UI
   document.querySelectorAll('.emoji-btn').forEach(b => {
     b.classList.remove('selected');
     const existingScore = state.evaluations[phase.id]?.score;
-    if (existingScore && parseInt(b.dataset.score) === existingScore) {
-      b.classList.add('selected');
-    }
+    if (existingScore && parseInt(b.dataset.score) === existingScore) b.classList.add('selected');
   });
-
   document.getElementById('phase-indicator').textContent = `${index + 1} / ${PHASES.length}`;
   document.getElementById('btn-prev').disabled = index === 0;
   document.getElementById('btn-next').disabled = index === PHASES.length - 1;
-  
   updatePhaseNavActive(index);
   document.querySelector('.scroll-content').scrollTo(0, 0);
 }
 
-// ============================================================
-// CORE ACTIONS (Save & Nav)
-// ============================================================
 async function setRatingAndSave(score) {
   const phaseId = PHASES[state.currentPhase].id;
-  state.evaluations[phaseId] = { 
-    score, 
-    phaseTitle: PHASES[state.currentPhase].title,
-    timestamp: new Date().toISOString() 
-  };
-
-  // UI Feedback
+  state.evaluations[phaseId] = { score, phaseTitle: PHASES[state.currentPhase].title, timestamp: new Date().toISOString() };
+  
   document.querySelectorAll('.emoji-btn').forEach(b => {
     b.classList.remove('selected');
     if (parseInt(b.dataset.score) === score) b.classList.add('selected');
   });
 
-  // Background Save
   if (fbReady) {
     const docId = `${state.date}_${state.traineeName}_${state.evaluatorName}`;
     try {
       await db.collection('evaluations').doc(docId).set({
-        trainee: state.traineeName,
-        evaluator: state.evaluatorName,
-        date: state.date,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        trainee: state.traineeName, evaluator: state.evaluatorName, date: state.date, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
-
       await db.collection('evaluations').doc(docId).collection('phases').doc(String(phaseId)).set({
-        score,
-        phaseTitle: PHASES[state.currentPhase].title,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        score, phaseTitle: PHASES[state.currentPhase].title, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
-    } catch (e) {
-      console.error("저장 실패:", e);
-    }
+    } catch (e) { console.error("저장 실패:", e); }
   }
 
   markPillDone(state.currentPhase);
-  
-  // Show save feedback
   const toast = document.getElementById('save-toast');
   if (toast) {
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 800);
   }
 
-  // Auto-Next
   setTimeout(() => {
     if (state.currentPhase < PHASES.length - 1) changePhase(1);
     else showSummary();
@@ -170,111 +127,79 @@ function changePhase(delta, direct) {
 }
 
 function confirmEndTraining() {
-  if (confirm('모든 단계를 완료하지 않았습니다. 여기서 훈련을 종료하고 결과를 보시겠습니까?')) {
-    showSummary();
-  }
+  if (confirm('훈련을 종료하고 결과를 보시겠습니까?')) showSummary();
 }
 
 function showSummary() {
   hideAllScreens();
   document.getElementById('screen-summary').classList.add('active');
   const container = document.getElementById('summary-content');
-  
   let listHtml = PHASES.map(p => {
     const ev = state.evaluations[p.id];
     return `
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border);">
-        <span style="font-size:15px; font-weight:600;">${p.id}. ${p.title}</span>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border);">
+        <span style="font-size:14px; font-weight:600;">${p.id}. ${p.title}</span>
         <div style="display:flex; align-items:center; gap:8px;">
           ${ev ? EMOJI_MAP[ev.score] : '<i class="ph ph-minus" style="color:var(--text-secondary)"></i>'}
-          <span style="font-size:13px; font-weight:700; color:var(--jeju-orange); min-width:45px; text-align:right;">
-            ${ev ? SCORE_LABEL[ev.score] : '미평가'}
-          </span>
+          <span style="font-size:12px; font-weight:700; color:var(--jeju-orange); min-width:45px; text-align:right;">${ev ? SCORE_LABEL[ev.score] : '미평가'}</span>
         </div>
       </div>
     `;
   }).join('');
-
   container.innerHTML = `
-    <div class="summary-header-info" style="margin-bottom:16px;">
-      <h2><i class="ph-fill ph-airplane-tilt" style="color:var(--jeju-orange)"></i> 대상: ${state.traineeName}</h2>
-      <p style="margin:0;">평가자: ${state.evaluatorName} | ${state.date}</p>
+    <div class="summary-header-info">
+      <h2><i class="ph-fill ph-airplane-tilt"></i> ${state.traineeName} 결과</h2>
+      <p>평가자: ${state.evaluatorName} | ${state.date}</p>
     </div>
     <div class="summary-card">${listHtml}</div>
   `;
 }
 
-// ============================================================
-// ADMIN & DATA EXPORT
-// ============================================================
 async function promptAdminLogin() {
   const pw = prompt("관리자 비밀번호를 입력하세요.");
   if (pw === "Jeju@ir1") {
     hideAllScreens();
     document.getElementById('screen-admin').classList.add('active');
     await loadAdminData();
-  } else if (pw !== null) {
-    alert("비밀번호가 틀렸습니다.");
   }
 }
 
 let adminDataCache = [];
 async function loadAdminData() {
-  if (!fbReady) { alert("Firebase가 연결되지 않았습니다."); return; }
+  if (!fbReady) return;
   showLoadingOverlay(true);
   try {
     const snap = await db.collection('evaluations').orderBy('date', 'desc').get();
     const list = document.getElementById('admin-date-list');
     list.innerHTML = '';
     adminDataCache = [];
-
     const dateGroups = {};
-
     for (const doc of snap.docs) {
       const meta = doc.data();
       const phasesSnap = await doc.ref.collection('phases').get();
       const phases = {};
       phasesSnap.forEach(p => phases[p.id] = p.data());
-      
       const record = { ...meta, phases };
       adminDataCache.push(record);
-      
       dateGroups[meta.date] = (dateGroups[meta.date] || 0) + 1;
     }
-
-    if (adminDataCache.length === 0) {
-      list.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-secondary);">저장된 데이터가 없습니다.</p>';
-    }
-
     Object.keys(dateGroups).sort().reverse().forEach(date => {
       const item = document.createElement('div');
       item.className = 'admin-data-item';
-      item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:16px; background:white; border-radius:12px; margin-bottom:12px; box-shadow:var(--shadow-sm);';
       item.innerHTML = `
-        <div>
-          <div style="font-weight:800; font-size:16px;">${date}</div>
-          <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">훈련 기록: ${dateGroups[date]}건</div>
-        </div>
-        <button class="btn-outline" style="width:auto; padding:8px 12px; font-size:13px;" onclick="exportDateToExcel('${date}')">
-          <i class="ph ph-file-xls"></i> 엑셀 받기
-        </button>
+        <div><div style="font-weight:800; font-size:16px;">${date}</div><div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">훈련 기록: ${dateGroups[date]}건</div></div>
+        <button class="btn-outline" style="width:auto; padding:8px 12px; font-size:13px;" onclick="exportDateToExcel('${date}')">엑셀 받기</button>
       `;
       list.appendChild(item);
     });
-  } catch (e) {
-    console.error("데이터 로드 오류:", e);
-  } finally {
-    showLoadingOverlay(false);
-  }
+  } finally { showLoadingOverlay(false); }
 }
 
 function exportDateToExcel(date) {
   const filtered = adminDataCache.filter(r => r.date === date);
   const rows = filtered.map(r => {
     const row = { '훈련일자': r.date, '평가자': r.evaluator, '피평가자': r.trainee };
-    PHASES.forEach(p => {
-      row[`${p.id}. ${p.title}`] = r.phases[p.id]?.score || '미평가';
-    });
+    PHASES.forEach(p => { row[`${p.id}. ${p.title}`] = r.phases[p.id]?.score || '미평가'; });
     return row;
   });
   const ws = XLSX.utils.json_to_sheet(rows);
@@ -284,7 +209,6 @@ function exportDateToExcel(date) {
 }
 
 function downloadAllExcel() {
-  if (adminDataCache.length === 0) { alert("데이터가 없습니다."); return; }
   const rows = adminDataCache.map(r => {
     const row = { '훈련일자': r.date, '평가자': r.evaluator, '피평가자': r.trainee };
     PHASES.forEach(p => { row[`${p.id}. ${p.title}`] = r.phases[p.id]?.score || '미평가'; });
@@ -296,80 +220,38 @@ function downloadAllExcel() {
   XLSX.writeFile(wb, `제주항공_훈련결과_전체.xlsx`);
 }
 
-// ============================================================
-// UI HELPERS
-// ============================================================
 function buildPhaseNav() {
   const nav = document.getElementById('phase-nav');
-  if (!nav) return;
-  nav.innerHTML = PHASES.map((p, i) => `
-    <button class="phase-pill ${i===0?'active':''}" onclick="changePhase(null, ${i})" data-index="${i}">
-      ${p.id}. ${p.title}
-    </button>
-  `).join('');
+  if (nav) nav.innerHTML = PHASES.map((p, i) => `<button class="phase-pill ${i===0?'active':''}" onclick="changePhase(null, ${i})" data-index="${i}">${p.id}. ${p.title}</button>`).join('');
 }
-
 function updatePhaseNavActive(idx) {
   const pills = document.querySelectorAll('.phase-pill');
   pills.forEach((p, i) => p.classList.toggle('active', i === idx));
   const activePill = pills[idx];
-  if (activePill && activePill.parentElement) {
-    activePill.parentElement.scrollTo({
-      left: activePill.offsetLeft - (activePill.parentElement.offsetWidth / 2) + (activePill.offsetWidth / 2),
-      behavior: 'smooth'
-    });
-  }
+  if (activePill && activePill.parentElement) activePill.parentElement.scrollTo({ left: activePill.offsetLeft - (activePill.parentElement.offsetWidth / 2) + (activePill.offsetWidth / 2), behavior: 'smooth' });
 }
-
-function markPillDone(idx) {
-  const pills = document.querySelectorAll('.phase-pill');
-  if (pills[idx]) pills[idx].classList.add('done');
-}
-
-function refreshPhasePills() {
-  PHASES.forEach((p, i) => { if (state.evaluations[p.id]) markPillDone(i); });
-}
-
+function markPillDone(idx) { document.querySelectorAll('.phase-pill')[idx]?.classList.add('done'); }
 async function loadSessionFromFirestore() {
   if (!fbReady) return;
   const docId = `${state.date}_${state.traineeName}_${state.evaluatorName}`;
   try {
     const snap = await db.collection('evaluations').doc(docId).collection('phases').get();
-    snap.forEach(doc => {
-      state.evaluations[parseInt(doc.id)] = doc.data();
-    });
-    refreshPhasePills();
-  } catch (e) { console.error("데이터 불러오기 실패:", e); }
+    snap.forEach(doc => { state.evaluations[parseInt(doc.id)] = doc.data(); });
+    PHASES.forEach((p, i) => { if (state.evaluations[p.id]) markPillDone(i); });
+  } catch (e) { console.error("불러오기 실패:", e); }
 }
-
-function hideAllScreens() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-}
-
-function goHome() {
-  if (confirm('홈 화면으로 이동하시겠습니까? (진행 중인 내용은 자동 저장됩니다)')) {
-    hideAllScreens();
-    document.getElementById('screen-login').classList.add('active');
-  }
-}
-
-function backToMain() {
-  hideAllScreens();
-  document.getElementById('screen-main').classList.add('active');
-}
-
-function showLoadingOverlay(visible) {
+function hideAllScreens() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); }
+function goHome() { if (confirm('홈 화면으로 이동하시겠습니까?')) { hideAllScreens(); document.getElementById('screen-login').classList.add('active'); } }
+function backToMain() { hideAllScreens(); document.getElementById('screen-main').classList.add('active'); }
+function showLoadingOverlay(v) { 
   let el = document.getElementById('loading-overlay');
   if (!el) {
-    el = document.createElement('div');
-    el.id = 'loading-overlay';
+    el = document.createElement('div'); el.id = 'loading-overlay';
     el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;color:white;font-weight:700;';
-    el.innerHTML = '데이터 처리 중...';
-    document.body.appendChild(el);
+    el.innerHTML = '데이터 처리 중...'; document.body.appendChild(el);
   }
-  el.style.display = visible ? 'flex' : 'none';
+  el.style.display = v ? 'flex' : 'none';
 }
-
 window.addEventListener('DOMContentLoaded', () => {
   const dateInput = document.getElementById('input-date');
   if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
