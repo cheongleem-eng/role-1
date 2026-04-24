@@ -15,8 +15,67 @@
 </head>
 <body>
 
+  <!-- ===================== PORTAL SCREEN (START) ===================== -->
+  <div id="screen-portal" class="screen active">
+    <div class="portal-wrapper">
+      <div class="portal-header">
+        <img src="LOGO.png" alt="제주항공 로고" class="portal-logo">
+        <p class="portal-subtitle">Cabin Training System</p>
+        <h1 class="portal-title">통합 교육 포털</h1>
+      </div>
+
+      <div class="portal-container">
+        <!-- Module 1: PRAM -->
+        <div class="portal-card" onclick="showModule('pram')">
+          <div class="card-icon-wrap">
+            <i class="ph-fill ph-speaker-high"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">737-800/8 PRAM</h3>
+            <p class="card-desc">방송 시스템 작동 및 시나리오 학습</p>
+          </div>
+          <div class="card-arrow">
+            <i class="ph ph-caret-right"></i>
+          </div>
+        </div>
+
+        <!-- Module 2: Interphone -->
+        <div class="portal-card" onclick="showModule('interphone')">
+          <div class="card-icon-wrap">
+            <i class="ph-fill ph-phone-call"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">737-8/800 Interphone</h3>
+            <p class="card-desc">기내 인터폰 시스템 사용법 학습</p>
+          </div>
+          <div class="card-arrow">
+            <i class="ph ph-caret-right"></i>
+          </div>
+        </div>
+
+        <!-- Module 3: Role-playing -->
+        <div class="portal-card highlight" onclick="showModule('login')">
+          <div class="card-icon-wrap">
+            <i class="ph-fill ph-users-three"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Emergency Role-Playing</h3>
+            <p class="card-desc">비상상황 대응 평가 및 훈련 시스템</p>
+          </div>
+          <div class="card-arrow">
+            <i class="ph ph-caret-right"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="portal-footer">
+        <p>© JEJU air Cabin Training Team</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== LOGIN SCREEN ===================== -->
-  <div id="screen-login" class="screen active">
+  <div id="screen-login" class="screen">
     <div class="login-wrapper">
       <div class="login-card">
         <div class="logo-wrap">
@@ -183,6 +242,53 @@
             <i class="ph-bold ph-download-simple"></i> 전체 데이터 통합 다운로드
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODULE PLACEHOLDERS ===================== -->
+  <div id="screen-pram" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-caret-left"></i>
+        </button>
+      </div>
+      <div class="header-center">737-800/8 PRAM</div>
+      <div class="header-right">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-house"></i>
+        </button>
+      </div>
+    </header>
+    <div class="scroll-content">
+      <div class="summary-header-info" style="margin-top:40px;">
+        <i class="ph-fill ph-speaker-high" style="font-size:48px; color:var(--jeju-orange); margin-bottom:16px;"></i>
+        <h2>PRAM 학습 시스템</h2>
+        <p>해당 모듈은 준비 중입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-interphone" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-caret-left"></i>
+        </button>
+      </div>
+      <div class="header-center">737-8/800 Interphone</div>
+      <div class="header-right">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-house"></i>
+        </button>
+      </div>
+    </header>
+    <div class="scroll-content">
+      <div class="summary-header-info" style="margin-top:40px;">
+        <i class="ph-fill ph-phone-call" style="font-size:48px; color:var(--jeju-orange); margin-bottom:16px;"></i>
+        <h2>Interphone 학습 시스템</h2>
+        <p>해당 모듈은 준비 중입니다.</p>
       </div>
     </div>
   </div>

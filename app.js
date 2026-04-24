@@ -241,7 +241,24 @@ async function loadSessionFromFirestore() {
   } catch (e) { console.error("불러오기 실패:", e); }
 }
 function hideAllScreens() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); }
-function goHome() { if (confirm('홈 화면으로 이동하시겠습니까?')) { hideAllScreens(); document.getElementById('screen-login').classList.add('active'); } }
+
+function showModule(moduleId) {
+  hideAllScreens();
+  if (moduleId === 'login') {
+    document.getElementById('screen-login').classList.add('active');
+  } else if (moduleId === 'pram') {
+    document.getElementById('screen-pram').classList.add('active');
+  } else if (moduleId === 'interphone') {
+    document.getElementById('screen-interphone').classList.add('active');
+  }
+}
+
+function goHome() { 
+  if (confirm('초기 포털 화면으로 이동하시겠습니까?')) { 
+    hideAllScreens(); 
+    document.getElementById('screen-portal').classList.add('active'); 
+  } 
+}
 function backToMain() { hideAllScreens(); document.getElementById('screen-main').classList.add('active'); }
 function showLoadingOverlay(v) { 
   let el = document.getElementById('loading-overlay');
