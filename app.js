@@ -256,7 +256,7 @@ function showModule(moduleId) {
     document.getElementById('screen-interphone').classList.add('active');
     setTimeout(() => {
       const iframe = document.getElementById('iframe-interphone');
-      iframe.src = 'https://cheongleem-eng.github.io/PHONE/';
+      iframe.src = 'https://cheongleem-eng.github.io/PHONE2/';
     }, 100);
   }
 }
