@@ -187,10 +187,25 @@ body {
   transition: all 0.3s;
 }
 .phase-pill.active { 
-  background: var(--jeju-orange); 
-  border-color: var(--jeju-orange); 
+  background: #0284C7; 
+  border-color: #0284C7; 
   color: white; 
-  box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+.phase-pill.done { 
+  background: rgba(16, 185, 129, 0.2); 
+  border-color: var(--success); 
+  color: #10B981; 
+  font-weight: 800;
+}
+.phase-pill.done::before {
+  content: "✓ ";
+  font-size: 10px;
+}
+.phase-pill.done.active {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
 }
 
 .phase-card { 
@@ -383,6 +398,32 @@ body {
   transition: all 0.2s;
 }
 .btn-outline:active { background: rgba(0,0,0,0.05); }
+
+.btn-end-training {
+  width: 100%;
+  padding: 2px;
+  background: linear-gradient(135deg, #151928, #252d4a);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(21, 25, 40, 0.4);
+  transition: all 0.3s;
+}
+.btn-end-inner {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-end-training:active { transform: scale(0.98); }
+.btn-end-training i { font-size: 22px; color: var(--jeju-orange-light); }
 
 .save-toast {
   position: fixed;
