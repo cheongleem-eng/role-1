@@ -128,7 +128,7 @@ body::before {
 
 .form-group input { 
   width: 100%; 
-  height: 34px !important; /* 모든 환경에서 높이 강제 고정 */
+  height: 34px !important; 
   padding: 0 12px; 
   border: 1px solid rgba(255, 255, 255, 0.2); 
   border-radius: 6px; 
@@ -137,18 +137,39 @@ body::before {
   color: var(--jeju-navy);
   transition: all 0.3s;
   display: block;
-  box-sizing: border-box; /* 패딩이 크기에 영향을 주지 않도록 설정 */
+  box-sizing: border-box;
   outline: none;
-  -webkit-appearance: none; /* 브라우저 기본 스타일 제거 */
+  -webkit-appearance: none;
   appearance: none;
+  line-height: 34px; /* 텍스트 수직 중앙 정렬 */
 }
 
 /* 날짜 입력창 모바일 정밀 보정 */
 .form-group input[type="date"] {
-  position: relative;
+  display: flex;
+  align-items: center; /* iOS/안드로이드 중앙 정렬 */
   min-height: 34px;
-  line-height: normal; /* 글자 위치 중앙 정렬 보조 */
+  line-height: 34px;
   font-family: 'Pretendard', sans-serif;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 상단 탭 완료 스타일 복구 및 강화 */
+.phase-pill.done { 
+  background: rgba(16, 185, 129, 0.25) !important; 
+  border-color: #10B981 !important; 
+  color: #10B981 !important; 
+  font-weight: 800;
+}
+.phase-pill.done::before {
+  content: "✓ ";
+  font-size: 10px;
+}
+.phase-pill.done.active {
+  background: #10B981 !important;
+  border-color: #10B981 !important;
+  color: white !important;
 }
 
 /* 날짜 입력창의 기본 아이콘이나 여백 제거 (iOS/Chrome) */
