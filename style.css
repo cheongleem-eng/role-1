@@ -595,8 +595,26 @@ body::before {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
 }
-.portal-card:active { transform: scale(0.96); background: rgba(255,255,255,0.2); }
+
+/* 마우스를 올렸을 때 은은한 빛 */
+.portal-card:hover {
+  border-color: rgba(255, 80, 0, 0.5);
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(255, 80, 0, 0.15);
+}
+
+/* 클릭/터치했을 때 주황빛 폭발 효과 (Glow) */
+.portal-card:active { 
+  transform: scale(0.95); 
+  background: rgba(255, 80, 0, 0.25);
+  border-color: var(--jeju-orange);
+  box-shadow: 0 0 30px rgba(255, 80, 0, 0.6), inset 0 0 15px rgba(255, 80, 0, 0.4);
+  transition: all 0.1s; /* 누를 때는 더 빠르게 반응 */
+}
 
 .card-icon-wrap {
   width: 54px;
