@@ -118,7 +118,7 @@ async function setRatingAndSave(score) {
   setTimeout(() => {
     if (state.currentPhase < PHASES.length - 1) changePhase(1);
     else showSummary();
-  }, 1000);
+  }, 400);
 }
 
 function changePhase(delta, direct) {

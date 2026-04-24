@@ -1,5 +1,5 @@
 /* ============================================================
-   제주항공 비상훈련 롤플레잉 — style.css (Ultra Compact)
+   제주항공 비상훈련 롤플레잉 — style.css
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
@@ -15,9 +15,10 @@
   --text-secondary: #71717A;
   --border: #E4E4E7;
   --success: #10B981;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.03);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow-sm: 0 2px 10px rgba(0,0,0,0.03);
+  --shadow-md: 0 12px 40px rgba(0,0,0,0.1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -37,79 +38,125 @@ body {
 .scroll-content {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 20px;
+  padding-bottom: 24px;
 }
 
-/* ---- Login ---- */
-#screen-login { background: #FFFFFF; align-items: center; justify-content: center; }
-.login-card { padding: 30px 20px; width: 90%; max-width: 380px; text-align: center; }
-.logo-img { max-width: 120px; margin-bottom: 12px; }
+/* ============================================================
+   LOGIN SCREEN (RESTORING ORIGINAL SPACIOUS STYLE)
+   ============================================================ */
+#screen-login {
+  background: linear-gradient(135deg, #E0F2FE 0%, #FFFFFF 100%);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
 
-.form-group { margin-bottom: 14px; text-align: left; }
-.form-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; }
-.form-group input { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; }
+.login-card {
+  background: var(--card-bg);
+  border-radius: 28px;
+  padding: 40px 24px;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  box-shadow: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0;
+}
 
-/* ---- Buttons ---- */
-.btn-primary { width: 100%; padding: 14px; background: var(--jeju-orange); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-secondary { padding: 10px 16px; background: white; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; }
-.btn-outline { width: 100%; padding: 12px; background: transparent; border: 1.5px solid var(--jeju-orange); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--jeju-orange); }
+.logo-img { max-width: 180px; margin-bottom: 32px; }
 
-/* ---- Header ---- */
+.form-group { margin-bottom: 24px; text-align: left; }
+.form-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: block; }
+.form-group input { 
+  width: 100%; 
+  padding: 16px; 
+  border: 1.5px solid var(--border); 
+  border-radius: var(--radius-sm); 
+  font-size: 16px; 
+  background: #FAFAFA;
+}
+.form-group input:focus { border-color: var(--jeju-orange); background: white; outline: none; }
+
+.btn-primary { 
+  width: 100%; 
+  padding: 18px; 
+  background: var(--jeju-orange); 
+  color: white; 
+  border: none; 
+  border-radius: var(--radius-sm); 
+  font-size: 18px; 
+  font-weight: 700; 
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 80, 0, 0.3);
+}
+
+.btn-outline {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 16px;
+}
+
+/* ============================================================
+   TRAINING SCREENS (KEEPING COMPACT AS REQUESTED)
+   ============================================================ */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 16px;
   background: #0284C7;
   color: white;
   flex-shrink: 0;
 }
-.header-badge { background: var(--jeju-orange); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
-.app-header .header-center { font-size: 13px; font-weight: 600; }
+.header-center { font-size: 14px; font-weight: 600; }
 
-/* ---- Phase Nav ---- */
-.phase-nav { display: flex; gap: 6px; padding: 10px; overflow-x: auto; background: white; border-bottom: 1px solid var(--border); scrollbar-width: none; }
-.phase-pill { flex-shrink: 0; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); background: white; color: var(--text-secondary); }
+.phase-nav { display: flex; gap: 8px; padding: 12px; overflow-x: auto; background: white; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+.phase-pill { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border); background: white; color: var(--text-secondary); }
 .phase-pill.active { background: #0284C7; border-color: #0284C7; color: white; }
 .phase-pill.done { border-color: var(--success); color: var(--success); background: #F0FDF4; }
 
-/* ---- Phase Card (Target Area) ---- */
-.phase-card { margin: 12px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; }
-.phase-header { background: #F0F9FF; padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #BAE6FD; }
-.phase-number { background: #0284C7; color: white; width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
-.phase-title { font-size: 15px; font-weight: 700; color: #0369A1; }
+.phase-card { margin: 0; background: white; border-radius: 0; box-shadow: none; overflow: hidden; border-bottom: 1px solid var(--border); }
+.phase-header { background: #F0F9FF; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #BAE6FD; }
+.phase-number { background: #0284C7; color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+.phase-title { font-size: 16px; font-weight: 700; color: #0369A1; }
 
 .instruction-box { padding: 16px; background: #FFF7F2; border-left: 4px solid var(--jeju-orange); margin: 0; }
 .instruction-label { font-size: 11px; font-weight: 800; color: var(--jeju-orange); margin-bottom: 6px; display: block; }
-.instruction-text { font-size: 13px; line-height: 1.5; color: var(--text-primary); font-weight: 600; white-space: pre-wrap; }
+.instruction-text { font-size: 14px; line-height: 1.5; color: var(--text-primary); font-weight: 600; white-space: pre-wrap; }
 
 .question-box { padding: 12px 16px; background: #F0F9FF; border-left: 4px solid #0EA5E9; margin: 12px 16px; border-radius: 0 8px 8px 0; }
 .question-label { font-size: 11px; font-weight: 800; color: #0EA5E9; margin-bottom: 4px; display: block; }
-.question-text { font-size: 13px; line-height: 1.4; color: var(--text-primary); font-weight: 700; }
+.question-text { font-size: 14px; line-height: 1.4; color: var(--text-primary); font-weight: 700; }
 
-/* ---- Rating ---- */
 .rating-section { padding: 16px; background: #FAFAFA; text-align: center; }
 .rating-label { font-size: 12px; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary); }
 .emoji-rating { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
-.emoji-btn { background: white; border: 1.5px solid var(--border); border-radius: 12px; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); }
-.emoji-btn i { font-size: 24px; }
-.emoji-btn.selected { border-color: var(--jeju-orange); background: var(--jeju-orange); color: white; transform: scale(1.05); }
+.emoji-btn { background: white; border: 1.5px solid var(--border); border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); }
+.emoji-btn i { font-size: 26px; }
+.emoji-btn.selected { border-color: var(--jeju-orange); background: var(--jeju-orange); color: white; }
 
 .rating-labels-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); padding: 0 4px; }
 .save-toast { display: none; text-align: center; font-size: 12px; color: var(--success); font-weight: 700; margin-top: 8px; }
 
-/* ---- Bottom Nav ---- */
 .bottom-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 20px; background: white; border-top: 1px solid var(--border); flex-shrink: 0; }
 .phase-indicator { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
 
-/* ---- Summary ---- */
 .summary-content { padding: 12px; }
-.summary-header-info { padding: 16px; background: white; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
-.summary-header-info h2 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
-.summary-header-info p { font-size: 12px; color: var(--text-secondary); }
-.summary-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+.summary-header-info { padding: 20px; background: white; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+.summary-header-info h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.summary-card { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+
+.btn-icon { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 4px; }
 
 @media (max-width: 360px) {
-  .emoji-btn { width: 40px; height: 40px; }
-  .phase-title { font-size: 14px; }
+  .emoji-btn { width: 42px; height: 42px; }
 }
