@@ -634,12 +634,17 @@ body::before {
 .card-desc { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; }
 .card-arrow { color: rgba(255,255,255,0.4); font-size: 20px; }
 
-/* Role-playing card highlight */
+/* Role-playing card highlight 제거 및 모든 카드 공통 스타일 강화 */
 .portal-card.highlight {
-  background: linear-gradient(135deg, rgba(255, 80, 0, 0.2), rgba(255, 80, 0, 0.1));
-  border-color: rgba(255, 80, 0, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
 }
-.portal-card.highlight .card-icon-wrap { background: var(--jeju-orange); color: white; box-shadow: 0 4px 12px rgba(255, 80, 0, 0.4); }
+
+/* 각 모듈별 아이콘 박스 컬러 포인트 (통일감 속의 다양성) */
+.portal-card:nth-child(1) .card-icon-wrap { background: linear-gradient(135deg, #FF5000, #FF8A00); box-shadow: 0 4px 12px rgba(255, 80, 0, 0.3); }
+.portal-card:nth-child(2) .card-icon-wrap { background: linear-gradient(135deg, #0284C7, #0EA5E9); box-shadow: 0 4px 12px rgba(2, 132, 201, 0.3); }
+.portal-card:nth-child(3) .card-icon-wrap { background: linear-gradient(135deg, #10B981, #34D399); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
 .portal-card.highlight .card-title { color: white; }
 
 .portal-footer {
