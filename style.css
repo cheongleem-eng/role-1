@@ -67,69 +67,82 @@ body {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 4px solid rgba(255, 255, 255, 0.3); 
-  border-radius: 40px; 
-  padding: 40px 28px;
-  width: 90%;
-  max-width: 380px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3); 
+  border-radius: 30px; 
+  padding: 30px 24px;
+  width: 85%;
+  max-width: 320px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
-.logo-wrap { margin-bottom: 32px; }
+.logo-wrap { margin-bottom: 24px; }
 .logo-img { 
-  max-width: 140px; 
-  margin-bottom: 8px;
+  max-width: 110px; 
+  margin-bottom: 6px;
 }
 .logo-sub {
   color: white;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
 }
 
-.form-group { margin-bottom: 24px; text-align: left; }
+.form-group { margin-bottom: 18px; text-align: left; }
 .form-group label { 
-  font-size: 13px; 
+  font-size: 12px; 
   font-weight: 700; 
   color: white; 
-  margin-bottom: 8px; 
+  margin-bottom: 6px; 
   display: block;
   padding-left: 4px;
 }
 
 .form-group input { 
   width: 100%; 
-  padding: 14px 18px; 
-  border: 1.5px solid rgba(255, 255, 255, 0.2); 
-  border-radius: 18px; 
-  font-size: 15px; 
+  height: 42px; /* 높이 고정으로 일체감 부여 */
+  padding: 0 14px; 
+  border: 1.2px solid rgba(255, 255, 255, 0.2); 
+  border-radius: 12px; 
+  font-size: 14px; 
   background: rgba(255, 255, 255, 0.9);
   color: var(--jeju-navy);
   transition: all 0.3s;
+  display: block;
+}
+
+/* 날짜 입력창 특수 스타일 보정 */
+.form-group input[type="date"] {
+  font-family: inherit;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .main-start-btn { 
   width: 100%;
-  padding: 16px; 
+  height: 46px; /* 인풋창보다 약간 더 강조된 높이 */
+  padding: 0; 
   background: var(--jeju-orange); 
   color: white; 
   border: none; 
-  border-radius: 18px; 
-  font-size: 17px; 
+  border-radius: 12px; 
+  font-size: 15px; 
   font-weight: 800; 
-  box-shadow: 0 8px 16px rgba(255, 80, 0, 0.3);
+  box-shadow: 0 6px 12px rgba(255, 80, 0, 0.3);
   cursor: pointer;
   transition: all 0.3s;
-  margin-top: 4px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.login-footer { margin-top: 24px; }
+.login-footer { margin-top: 18px; }
 .btn-text-only {
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
