@@ -128,26 +128,46 @@ body::before {
 
 .form-group input { 
   width: 100%; 
-  height: 32px; 
-  padding: 0 10px; 
+  height: 34px !important; /* 모든 환경에서 높이 강제 고정 */
+  padding: 0 12px; 
   border: 1px solid rgba(255, 255, 255, 0.2); 
   border-radius: 6px; 
-  font-size: 13px; 
+  font-size: 14px; 
   background: rgba(255, 255, 255, 0.95);
   color: var(--jeju-navy);
   transition: all 0.3s;
   display: block;
+  box-sizing: border-box; /* 패딩이 크기에 영향을 주지 않도록 설정 */
+  outline: none;
+  -webkit-appearance: none; /* 브라우저 기본 스타일 제거 */
+  appearance: none;
+}
+
+/* 날짜 입력창 모바일 정밀 보정 */
+.form-group input[type="date"] {
+  position: relative;
+  min-height: 34px;
+  line-height: normal; /* 글자 위치 중앙 정렬 보조 */
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 날짜 입력창의 기본 아이콘이나 여백 제거 (iOS/Chrome) */
+.form-group input[type="date"]::-webkit-inner-spin-button,
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5; /* 아이콘은 보이되 배경과 어울리게 */
+  padding: 0;
+  margin: 0;
 }
 
 .main-start-btn { 
   width: 100%;
-  height: 36px; 
+  height: 38px !important; 
   padding: 0; 
   background: var(--jeju-orange); 
   color: white; 
   border: none; 
   border-radius: 6px; 
-  font-size: 14px; 
+  font-size: 15px; 
   font-weight: 800; 
   box-shadow: 0 4px 8px rgba(255, 80, 0, 0.3);
   cursor: pointer;
@@ -156,6 +176,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .login-footer { margin-top: 14px; }
