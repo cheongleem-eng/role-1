@@ -100,11 +100,11 @@ body {
 
 .form-group input { 
   width: 100%; 
-  height: 42px; /* 높이 고정으로 일체감 부여 */
-  padding: 0 14px; 
+  height: 34px; /* 훨씬 날렵한 높이 */
+  padding: 0 12px; 
   border: 1.2px solid rgba(255, 255, 255, 0.2); 
-  border-radius: 12px; 
-  font-size: 14px; 
+  border-radius: 8px; /* 높이에 맞춰 곡률 축소 */
+  font-size: 13px; 
   background: rgba(255, 255, 255, 0.9);
   color: var(--jeju-navy);
   transition: all 0.3s;
@@ -120,15 +120,15 @@ body {
 
 .main-start-btn { 
   width: 100%;
-  height: 46px; /* 인풋창보다 약간 더 강조된 높이 */
+  height: 38px; /* 날렵한 버튼 높이 */
   padding: 0; 
   background: var(--jeju-orange); 
   color: white; 
   border: none; 
-  border-radius: 12px; 
-  font-size: 15px; 
+  border-radius: 8px; 
+  font-size: 14px; 
   font-weight: 800; 
-  box-shadow: 0 6px 12px rgba(255, 80, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(255, 80, 0, 0.3);
   cursor: pointer;
   transition: all 0.3s;
   margin-top: 6px;
