@@ -15,8 +15,23 @@
 </head>
 <body>
 
+  <!-- ===================== PATTERN LOCK SCREEN ===================== -->
+  <div id="screen-lock" class="screen active">
+    <div class="lock-wrapper">
+      <div class="lock-header">
+        <img src="LOGO.png" alt="제주항공 로고" class="lock-logo">
+        <p class="lock-title">Cabin Training System</p>
+        <p class="lock-hint">시스템 접근을 위해 패턴을 그리세요</p>
+      </div>
+      <div id="pattern-container"></div>
+      <div class="lock-footer">
+        <p>© JEJU AIR Cabin Training Team</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== PORTAL SCREEN (START) ===================== -->
-  <div id="screen-portal" class="screen active">
+  <div id="screen-portal" class="screen">
     <div class="portal-wrapper">
       <div class="portal-header">
         <img src="LOGO.png" alt="제주항공 로고" class="portal-logo">
@@ -285,6 +300,7 @@
     </div>
   </div>
 
+  <script src="main.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

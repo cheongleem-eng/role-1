@@ -690,3 +690,129 @@ body::before {
 }
 
 .btn-icon { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 4px; }
+
+/* ============================================================
+   Pattern Lock Screen Styles
+   ============================================================ */
+.lock-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at top, #2c2c2c 0%, #1a1a1a 100%);
+  color: white;
+  text-align: center;
+}
+
+.lock-logo {
+  width: 140px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}
+
+.lock-title {
+  font-size: 14px;
+  color: var(--jeju-orange);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.lock-hint {
+  font-size: 16px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 40px;
+}
+
+#pattern-container {
+  width: 320px;
+  height: 320px;
+  position: relative;
+  touch-action: none;
+}
+
+.pattern-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  margin: auto;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dot.active {
+  background: var(--jeju-orange);
+  transform: scale(1.5);
+  box-shadow: 0 0 20px var(--jeju-orange);
+}
+
+.pattern-grid.error .dot.active {
+  background: #ff4d4d;
+  box-shadow: 0 0 20px #ff4d4d;
+}
+
+.pattern-grid.success .dot.active {
+  background: var(--success);
+  box-shadow: 0 0 20px var(--success);
+}
+
+.pattern-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pattern-line {
+  stroke: var(--jeju-orange);
+  stroke-width: 6;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.pattern-line.active {
+  opacity: 0.4;
+}
+
+.pattern-grid.error .pattern-line {
+  stroke: #ff4d4d;
+}
+
+.pattern-grid.success .pattern-line {
+  stroke: var(--success);
+}
+
+.lock-footer {
+  margin-top: 60px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+/* Error Shake Animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.pattern-grid.error {
+  animation: shake 0.2s ease-in-out 0s 2;
+}
