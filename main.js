@@ -18,7 +18,6 @@ class PatternLock {
         ${Array.from({ length: 9 }, (_, i) => `
           <div class="dot-wrapper" data-index="${i + 1}">
             <div class="dot"></div>
-            <span class="dot-number">${i + 1}</span>
           </div>
         `).join('')}
       </div>
