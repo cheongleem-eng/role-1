@@ -4,12 +4,13 @@
 
 // 🔥 FIREBASE 설정 — 본인의 프로젝트 값으로 교체되어 있어야 합니다!
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyCPRPZs9qeMFzdH4eapXCJAmNDa5t2oF5U",
+  authDomain: "role-play-3-chat.firebaseapp.com",
+  projectId: "role-play-3-chat",
+  storageBucket: "role-play-3-chat.firebasestorage.app",
+  messagingSenderId: "236994771930",
+  appId: "1:236994771930:web:0084ae9c66af7f873bdee3",
+  measurementId: "G-CWRDZ12WWL"
 };
 
 const PHASES = [
