@@ -820,3 +820,79 @@ body::before {
 .pattern-grid.error {
   animation: shake 0.2s ease-in-out 0s 2;
 }
+
+/* ============================================================
+   Sequence Lock Optimized Styles
+   ============================================================ */
+.pattern-grid.sequence-mode {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 30px;
+  padding: 20px;
+}
+
+.dot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.dot-wrapper:active {
+  transform: scale(0.9);
+}
+
+.dot-wrapper .dot {
+  width: 54px;
+  height: 54px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dot-number {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.3s;
+}
+
+/* 눌렸을 때 상태 */
+.dot-wrapper.active .dot {
+  background: var(--jeju-orange);
+  border-color: var(--jeju-orange);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 80, 0, 0.6);
+}
+
+.dot-wrapper.active .dot-number {
+  color: var(--jeju-orange);
+}
+
+/* 성공 시 */
+.pattern-grid.success .dot-wrapper.active .dot {
+  background: var(--success);
+  border-color: var(--success);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+}
+
+/* 에러 시 */
+.pattern-grid.error .dot-wrapper.active .dot {
+  background: #ff4d4d;
+  border-color: #ff4d4d;
+  box-shadow: 0 0 25px rgba(255, 77, 77, 0.8);
+}
+
+.pattern-grid.error .dot-wrapper.active .dot-number {
+  color: #ff4d4d;
+}
