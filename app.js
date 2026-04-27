@@ -360,8 +360,13 @@ function loadChatRooms() {
   
   if (roomsUnsubscribe) roomsUnsubscribe();
   
+  // Firebase 설정 확인 경고
+  if (FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") {
+    roomListEl.innerHTML = '<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">⚠️ Firebase 설정(API Key 등)이 누락되었습니다.<br>app.js 상단을 수정해주세요.</div>';
+    return;
+  }
+  
   roomsUnsubscribe = db.collection('chat_rooms')
-    .orderBy('createdAt', 'desc')
     .onSnapshot(snapshot => {
       roomListEl.innerHTML = '';
       if (snapshot.empty) {
@@ -369,9 +374,21 @@ function loadChatRooms() {
         return;
       }
       
+      // 데이터를 불러온 후 자바스크립트에서 정렬 (색인 오류 방지)
+      const rooms = [];
       snapshot.forEach(doc => {
-        const room = doc.data();
-        const time = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+        rooms.push({ id: doc.id, ...doc.data() });
+      });
+      
+      // 생성시간 역순 정렬
+      rooms.sort((a, b) => {
+        const timeA = a.createdAt ? a.createdAt.seconds : Date.now();
+        const timeB = b.createdAt ? b.createdAt.seconds : Date.now();
+        return timeB - timeA;
+      });
+
+      rooms.forEach(room => {
+        const time = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '방금 전';
         
         const item = document.createElement('div');
         item.className = 'room-item';
@@ -380,11 +397,14 @@ function loadChatRooms() {
             <span class="room-title">${room.title}</span>
             <span class="room-meta">생성일: ${time}</span>
           </div>
-          <button class="btn-primary" style="padding: 6px 16px; border:none; border-radius:8px; font-size:12px; font-weight:bold; background:var(--jeju-orange); color:white;">입장</button>
+          <button class="btn-primary" style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);">입장</button>
         `;
-        item.onclick = () => joinChatRoom(doc.id, room.title);
+        item.onclick = () => joinChatRoom(room.id, room.title);
         roomListEl.appendChild(item);
       });
+    }, error => {
+      console.error("Firestore Listen Error:", error);
+      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">권한 또는 색인 오류가 발생했습니다.<br>${error.message}</div>`;
     });
 }
 
