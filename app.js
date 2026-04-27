@@ -284,11 +284,252 @@ function showModule(moduleId) {
       const iframe = document.getElementById('iframe-interphone');
       iframe.src = 'https://cheongleem-eng.github.io/PHONE2/';
     }, 100);
+  } else if (moduleId === 'chat-lobby') {
+    document.getElementById('screen-chat-lobby').classList.add('active');
+    initChatLobby();
+  }
+}
+
+/* ============================================================
+   CHAT LOGIC (ROOMS & AVATARS)
+   ============================================================ */
+
+let chatUnsubscribe = null;
+let roomsUnsubscribe = null;
+let currentChatRoomId = null;
+
+// Chat User Profile State
+let chatState = {
+  name: '',
+  group: null, // 1 to 6
+  isAdmin: false,
+  groupColors: {
+    1: '#FF3B30', // Red
+    2: '#FF9500', // Orange
+    3: '#FFCC00', // Yellow
+    4: '#34C759', // Green
+    5: '#007AFF', // Blue
+    6: '#AF52DE'  // Purple
+  }
+};
+
+function initChatLobby() {
+  if (!fbReady) {
+    alert('Firebase가 연결되지 않아 채팅을 이용할 수 없습니다.');
+    return;
+  }
+  
+  // Setup Group Selectors
+  document.querySelectorAll('.group-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      chatState.group = parseInt(btn.dataset.group);
+    };
+  });
+  
+  // Use session name if available and not yet set
+  if (!chatState.name && state.evaluatorName) {
+    document.getElementById('chat-user-name').value = state.evaluatorName;
+  }
+
+  loadChatRooms();
+}
+
+function promptChatAdminLogin() {
+  const pw = prompt("채팅 관리자 비밀번호를 입력하세요.");
+  if (pw === "Jeju@ir1") {
+    chatState.isAdmin = true;
+    chatState.group = null; // Admin has no group
+    
+    // Update UI
+    document.getElementById('admin-profile-badge').style.display = 'block';
+    document.getElementById('chat-group-selection').style.display = 'none';
+    document.getElementById('btn-create-room').style.display = 'block';
+    
+    document.getElementById('chat-user-name').value = "관리자";
+    alert("관리자 권한이 활성화되었습니다. 이제 방을 만들 수 있습니다.");
+  } else if (pw !== null) {
+    alert("비밀번호가 틀렸습니다.");
+  }
+}
+
+function loadChatRooms() {
+  const roomListEl = document.getElementById('chat-room-list');
+  roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">방 목록을 불러오는 중...</div>';
+  
+  if (roomsUnsubscribe) roomsUnsubscribe();
+  
+  roomsUnsubscribe = db.collection('chat_rooms')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snapshot => {
+      roomListEl.innerHTML = '';
+      if (snapshot.empty) {
+        roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">현재 개설된 방이 없습니다.</div>';
+        return;
+      }
+      
+      snapshot.forEach(doc => {
+        const room = doc.data();
+        const time = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+        
+        const item = document.createElement('div');
+        item.className = 'room-item';
+        item.innerHTML = `
+          <div class="room-info">
+            <span class="room-title">${room.title}</span>
+            <span class="room-meta">생성일: ${time}</span>
+          </div>
+          <button class="btn-primary" style="padding: 6px 16px; border:none; border-radius:8px; font-size:12px; font-weight:bold; background:var(--jeju-orange); color:white;">입장</button>
+        `;
+        item.onclick = () => joinChatRoom(doc.id, room.title);
+        roomListEl.appendChild(item);
+      });
+    });
+}
+
+async function createNewChatRoom() {
+  const title = prompt("생성할 방 제목을 입력하세요:");
+  if (!title) return;
+  
+  try {
+    await db.collection('chat_rooms').add({
+      title: title,
+      createdBy: "관리자",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    console.error("방 생성 실패:", e);
+    alert("방 생성에 실패했습니다.");
+  }
+}
+
+function joinChatRoom(roomId, roomTitle) {
+  // Validate profile
+  chatState.name = document.getElementById('chat-user-name').value.trim();
+  
+  if (!chatState.name) {
+    alert("입장 전 이름을 입력해주세요.");
+    return;
+  }
+  
+  if (!chatState.isAdmin && !chatState.group) {
+    alert("입장 전 소속 조를 선택해주세요.");
+    return;
+  }
+  
+  currentChatRoomId = roomId;
+  
+  hideAllScreens();
+  document.getElementById('screen-chat').classList.add('active');
+  document.getElementById('chat-room-title').innerHTML = `<i class="ph-fill ph-chats-circle"></i> ${roomTitle}`;
+  
+  initChatRoom();
+}
+
+function leaveChatRoom() {
+  if (chatUnsubscribe) {
+    chatUnsubscribe();
+    chatUnsubscribe = null;
+  }
+  currentChatRoomId = null;
+  hideAllScreens();
+  document.getElementById('screen-chat-lobby').classList.add('active');
+}
+
+function initChatRoom() {
+  if (!currentChatRoomId) return;
+  
+  if (chatUnsubscribe) chatUnsubscribe();
+  
+  const chatMessages = document.getElementById('chat-messages');
+  chatMessages.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">메시지를 불러오는 중...</div>';
+  
+  chatUnsubscribe = db.collection('chat_rooms').doc(currentChatRoomId).collection('messages')
+    .orderBy('timestamp', 'asc')
+    .limitToLast(100)
+    .onSnapshot(snapshot => {
+      chatMessages.innerHTML = '';
+      if (snapshot.empty) {
+        chatMessages.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">첫 메시지를 보내보세요!</div>';
+        return;
+      }
+      
+      snapshot.forEach(doc => {
+        renderEnhancedChatMessage(doc.data());
+      });
+      chatMessages.scrollTo(0, chatMessages.scrollHeight);
+    });
+}
+
+function renderEnhancedChatMessage(data) {
+  const chatMessages = document.getElementById('chat-messages');
+  // Simple check for 'me' based on name
+  const isMe = data.sender === chatState.name;
+  
+  const msgWrapper = document.createElement('div');
+  msgWrapper.className = `chat-message-wrapper ${isMe ? 'sent' : 'received'}`;
+  
+  const time = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
+  
+  // Avatar and color logic
+  let avatarHtml = '';
+  let senderHtml = '';
+  
+  if (data.isAdmin) {
+    avatarHtml = `<div class="chat-avatar admin-avatar">관</div>`;
+    senderHtml = `<div class="chat-message-sender admin-sender"><i class="ph-fill ph-crown"></i> ${data.sender}</div>`;
+  } else {
+    const gColor = chatState.groupColors[data.group] || '#71717A';
+    avatarHtml = `<div class="chat-avatar" style="--g-color: ${gColor};">${data.group}조</div>`;
+    senderHtml = `<div class="chat-message-sender">${data.sender} <span style="font-size:10px; opacity:0.6;">(${data.group}조)</span></div>`;
+  }
+  
+  msgWrapper.innerHTML = `
+    ${!isMe ? avatarHtml : ''}
+    <div class="chat-message-content">
+      ${!isMe ? senderHtml : ''}
+      <div class="chat-bubble">${data.text}</div>
+      <div class="message-time">${time}</div>
+    </div>
+  `;
+  
+  chatMessages.appendChild(msgWrapper);
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !fbReady || !currentChatRoomId) return;
+  
+  input.value = '';
+  try {
+    await db.collection('chat_rooms').doc(currentChatRoomId).collection('messages').add({
+      text: text,
+      sender: chatState.name,
+      group: chatState.group,
+      isAdmin: chatState.isAdmin,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    console.error("메시지 전송 실패:", e);
   }
 }
 
 function goHome() { 
   if (confirm('초기 포털 화면으로 이동하시겠습니까?')) { 
+    // Clean up chat
+    if (chatUnsubscribe) chatUnsubscribe();
+    if (roomsUnsubscribe) roomsUnsubscribe();
+    currentChatRoomId = null;
+    
+    // 인터폰 및 PRAM iframe 초기화 (스피커/오디오 종료)
+    const iframeInterphone = document.getElementById('iframe-interphone');
+    if (iframeInterphone) iframeInterphone.src = '';
+    
+    const iframePram = document.getElementById('iframe-pram');
+    if (iframePram) iframePram.src = '';
+
     hideAllScreens(); 
     document.getElementById('screen-portal').classList.add('active'); 
   } 

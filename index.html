@@ -91,6 +91,20 @@
             <i class="ph ph-caret-right"></i>
           </div>
         </div>
+
+        <!-- Module 4: Real-time Chat -->
+        <div class="portal-card" onclick="showModule('chat-lobby')">
+          <div class="card-icon-wrap" style="background: rgba(255, 122, 0, 0.2); color: var(--jeju-orange);">
+            <i class="ph-fill ph-chats-circle"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Open Chat</h3>
+            <p class="card-desc">실시간 정보 공유 및 소통 창구</p>
+          </div>
+          <div class="card-arrow">
+            <i class="ph ph-caret-right"></i>
+          </div>
+        </div>
       </div>
       
       <div class="portal-footer">
@@ -310,7 +324,96 @@
     </div>
   </div>
 
+  <!-- ===================== CHAT LOBBY SCREEN ===================== -->
+  <div id="screen-chat-lobby" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-caret-left"></i>
+        </button>
+      </div>
+      <div class="header-center">Open Chat Lobby</div>
+      <div class="header-right">
+        <button class="btn-icon" onclick="promptChatAdminLogin()">
+          <i class="ph-fill ph-crown"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="scroll-content" style="padding: 20px;">
+      <div class="chat-profile-section card">
+        <h3 style="margin-bottom: 15px; font-size: 16px;">프로필 설정</h3>
+        
+        <div class="form-group">
+          <label>이름 (닉네임)</label>
+          <input type="text" id="chat-user-name" placeholder="이름을 입력하세요" />
+        </div>
+
+        <div class="form-group" id="chat-group-selection">
+          <label>소속 조 선택</label>
+          <div class="group-selectors">
+            <button class="group-btn" data-group="1" style="--g-color: #FF3B30;">1조</button>
+            <button class="group-btn" data-group="2" style="--g-color: #FF9500;">2조</button>
+            <button class="group-btn" data-group="3" style="--g-color: #FFCC00;">3조</button>
+            <button class="group-btn" data-group="4" style="--g-color: #34C759;">4조</button>
+            <button class="group-btn" data-group="5" style="--g-color: #007AFF;">5조</button>
+            <button class="group-btn" data-group="6" style="--g-color: #AF52DE;">6조</button>
+          </div>
+        </div>
+
+        <div id="admin-profile-badge" style="display: none; padding: 10px; background: rgba(255,204,0,0.15); border: 1px solid #FFCC00; border-radius: 8px; color: #FFCC00; margin-bottom: 15px; text-align: center; font-weight: bold;">
+          <i class="ph-fill ph-crown"></i> 관리자 모드로 접속 중
+        </div>
+      </div>
+
+      <div class="chat-rooms-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="font-size: 16px;">참여 가능한 방</h3>
+          <button id="btn-create-room" class="btn-outline" style="display: none; padding: 6px 12px; font-size: 12px;" onclick="createNewChatRoom()">
+            <i class="ph-bold ph-plus"></i> 방 만들기
+          </button>
+        </div>
+        
+        <div id="chat-room-list" class="room-list">
+          <!-- Rooms will be loaded here -->
+          <div style="text-align: center; color: var(--text-secondary); padding: 20px;">방 목록을 불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CHAT ROOM SCREEN ===================== -->
+  <div id="screen-chat" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" onclick="leaveChatRoom()">
+          <i class="ph ph-caret-left"></i>
+        </button>
+      </div>
+      <div class="header-center" id="chat-room-title"><i class="ph-fill ph-chats-circle"></i> Chat Room</div>
+      <div class="header-right">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-house"></i>
+        </button>
+      </div>
+    </header>
+    
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages will be rendered here -->
+      </div>
+      
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+        <button class="btn-send" onclick="sendChatMessage()">
+          <i class="ph-fill ph-paper-plane-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="main.js?v=1.9"></script>
   <script src="app.js?v=1.9"></script>
 </body>
 </html>
+
