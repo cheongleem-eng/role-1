@@ -1,5 +1,5 @@
 /* ============================================================
-   Pattern Lock Component — main.js (High Sensitivity)
+   Pattern Lock Component — main.js (Global Touch Strategy)
    ============================================================ */
 
 class PatternLock {
@@ -10,7 +10,7 @@ class PatternLock {
     this.path = [];
     this.isDrawing = false;
     this.correctPattern = "412369";
-    this.dotCenters = []; // 점들의 중심 좌표 캐싱
+    this.dotCenters = []; 
     
     this.init();
   }
@@ -27,15 +27,13 @@ class PatternLock {
     this.svg = this.container.querySelector('.pattern-svg');
     this.dotElements = this.container.querySelectorAll('.dot');
     
-    // 모바일 드래그 최적화
+    // 강제 스타일 고정
     this.grid.style.touchAction = 'none';
     this.grid.style.userSelect = 'none';
-    this.grid.style.webkitUserSelect = 'none';
     
     this.addEventListeners();
   }
 
-  // 드래그 시작 시 점들의 실시간 좌표를 미리 계산하여 성능 향상
   cacheDotPositions() {
     this.dotCenters = [];
     this.dotElements.forEach((el, index) => {
@@ -49,20 +47,19 @@ class PatternLock {
   }
 
   addEventListeners() {
-    const start = (e) => {
-      // 드래그 시 브라우저 기본 동작(스크롤 등) 원천 차단
+    const handleStart = (e) => {
       if (e.cancelable) e.preventDefault();
       
       this.isDrawing = true;
       this.path = [];
       this.clearStatus();
-      this.cacheDotPositions(); // 시작할 때 좌표 캐싱
+      this.cacheDotPositions();
       
       const point = this.getEventPoint(e);
       this.handleMoveAt(point.x, point.y);
     };
 
-    const move = (e) => {
+    const handleMove = (e) => {
       if (!this.isDrawing) return;
       if (e.cancelable) e.preventDefault();
       
@@ -70,20 +67,21 @@ class PatternLock {
       this.handleMoveAt(point.x, point.y);
     };
 
-    const end = (e) => {
+    const handleEnd = (e) => {
       if (!this.isDrawing) return;
       this.isDrawing = false;
       this.checkPattern();
     };
 
-    // Grid 영역에서 이벤트 리스너 등록
-    this.grid.addEventListener('touchstart', start, { passive: false });
-    this.grid.addEventListener('touchmove', move, { passive: false });
-    this.grid.addEventListener('touchend', end, { passive: false });
+    // 시작은 격자 내부에서만
+    this.grid.addEventListener('touchstart', handleStart, { passive: false });
+    this.grid.addEventListener('mousedown', handleStart);
 
-    this.grid.addEventListener('mousedown', start);
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', end);
+    // 이동과 종료는 윈도우 전역에서 리슨 (격자 밖으로 나가도 드래그 유지)
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleEnd, { passive: false });
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
   }
 
   getEventPoint(e) {
@@ -99,19 +97,16 @@ class PatternLock {
     if (targetDot && !this.path.includes(targetDot)) {
       this.path.push(targetDot);
       this.dotElements[targetDot - 1].classList.add('active');
-      
-      // 햅틱 피드백
-      if (navigator.vibrate) navigator.vibrate(15);
+      if (navigator.vibrate) navigator.vibrate(20);
     }
     
     this.renderLines(x, y);
   }
 
   findNearestDot(x, y) {
-    // 캐싱된 좌표를 바탕으로 가장 가까운 점 찾기 (성능 우수)
     for (const dot of this.dotCenters) {
       const dist = Math.hypot(x - dot.x, y - dot.y);
-      if (dist < 38) { // 인식 범위 약간 더 확대
+      if (dist < 40) { // 인식 범위 대폭 확보
         return dot.index;
       }
     }
@@ -132,14 +127,12 @@ class PatternLock {
       const y1 = center.y - svgRect.top;
 
       if (i < this.path.length - 1) {
-        // 이미 연결된 점들 사이의 선
         const nextDotIdx = this.path[i + 1];
         const nextCenter = this.dotCenters[nextDotIdx - 1];
         const x2 = nextCenter.x - svgRect.left;
         const y2 = nextCenter.y - svgRect.top;
         svgHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="pattern-line" />`;
       } else if (this.isDrawing) {
-        // 마지막 점과 현재 손가락 위치 사이의 실시간 선
         const x2 = currentX - svgRect.left;
         const y2 = currentY - svgRect.top;
         svgHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="pattern-line active" />`;
@@ -152,14 +145,20 @@ class PatternLock {
     const userPattern = this.path.join('');
     if (userPattern === this.correctPattern) {
       this.grid.classList.add('success');
-      setTimeout(() => this.onUnlock(), 300);
+      setTimeout(() => this.unlock(), 300);
     } else {
       if (this.path.length > 0) {
         this.grid.classList.add('error');
-        if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
+        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
         setTimeout(() => this.clearStatus(), 1000);
       }
     }
+  }
+
+  unlock() {
+    document.body.classList.remove('lock-active');
+    document.getElementById('screen-lock').style.display = 'none';
+    document.getElementById('screen-portal').classList.add('active');
   }
 
   clearStatus() {
@@ -171,13 +170,7 @@ class PatternLock {
   }
 }
 
-// 초기화
 window.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('pattern-container');
-  if (container) {
-    new PatternLock('pattern-container', () => {
-      document.getElementById('screen-lock').style.display = 'none';
-      document.getElementById('screen-portal').classList.add('active');
-    });
-  }
+  if (container) new PatternLock('pattern-container');
 });
