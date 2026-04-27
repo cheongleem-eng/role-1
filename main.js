@@ -1,5 +1,5 @@
 /* ============================================================
-   Pattern Lock Component — main.js
+   Pattern Lock Component — main.js (iOS Optimized)
    ============================================================ */
 
 class PatternLock {
@@ -26,12 +26,16 @@ class PatternLock {
     this.svg = this.container.querySelector('.pattern-svg');
     this.dotElements = this.container.querySelectorAll('.dot');
     
+    // 강제로 터치 액션 제한
+    this.grid.style.touchAction = 'none';
+    
     this.addEventListeners();
   }
 
   addEventListeners() {
     const start = (e) => {
-      e.preventDefault();
+      // 아이폰에서 이벤트 전파 방지 및 기본 동작 차단
+      if (e.cancelable) e.preventDefault();
       this.isDrawing = true;
       this.path = [];
       this.clearStatus();
@@ -40,7 +44,7 @@ class PatternLock {
 
     const move = (e) => {
       if (!this.isDrawing) return;
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault(); // 스크롤 방지
       this.handleMove(e);
     };
 
@@ -55,20 +59,30 @@ class PatternLock {
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', end);
 
-    // Touch Events
+    // Touch Events (iOS 전용 설정 추가)
     this.grid.addEventListener('touchstart', start, { passive: false });
-    window.addEventListener('touchmove', move, { passive: false });
+    this.grid.addEventListener('touchmove', move, { passive: false });
     window.addEventListener('touchend', end, { passive: false });
   }
 
   handleMove(e) {
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    let clientX, clientY;
+    
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
     
     const targetDot = this.getDotAt(clientX, clientY);
     if (targetDot && !this.path.includes(targetDot)) {
       this.path.push(targetDot);
       this.dotElements[targetDot - 1].classList.add('active');
+      
+      // 진동 피드백 (지원되는 기기에서)
+      if (navigator.vibrate) navigator.vibrate(10);
     }
     
     this.renderLines(clientX, clientY);
@@ -79,9 +93,11 @@ class PatternLock {
       const rect = this.dotElements[i].getBoundingClientRect();
       const dotX = rect.left + rect.width / 2;
       const dotY = rect.top + rect.height / 2;
+      
+      // 거리 계산 (아이폰 터치 오차 고려하여 범위 확대)
       const distance = Math.hypot(x - dotX, y - dotY);
       
-      if (distance < 30) { // 넉넉한 히트 영역
+      if (distance < 35) { 
         return i + 1;
       }
     }
@@ -117,8 +133,12 @@ class PatternLock {
       this.grid.classList.add('success');
       setTimeout(() => this.onUnlock(), 300);
     } else {
-      this.grid.classList.add('error');
-      setTimeout(() => this.clearStatus(), 1000);
+      if (this.path.length > 0) {
+        this.grid.classList.add('error');
+        // 실패 시 진동
+        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+        setTimeout(() => this.clearStatus(), 1000);
+      }
     }
   }
 
@@ -133,10 +153,13 @@ class PatternLock {
 
 // Initialize Pattern Lock
 window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('pattern-container')) {
+  const container = document.getElementById('pattern-container');
+  if (container) {
     new PatternLock('pattern-container', () => {
-      document.getElementById('screen-lock').classList.remove('active');
-      document.getElementById('screen-portal').classList.add('active');
+      const lockScreen = document.getElementById('screen-lock');
+      const portalScreen = document.getElementById('screen-portal');
+      if (lockScreen) lockScreen.classList.remove('active');
+      if (portalScreen) portalScreen.classList.add('active');
     });
   }
 });
