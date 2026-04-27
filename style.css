@@ -55,12 +55,16 @@ body::before {
 
 .screen { 
   display: none; 
+  height: 100vh; /* fallback */
   height: 100dvh; 
-  width: 100vw; 
+  width: 100%; 
   flex-direction: column; 
   background: transparent;
-  padding-top: env(safe-area-inset-top); /* 노치 대응 */
-  padding-bottom: env(safe-area-inset-bottom); /* 하단 바 대응 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .screen.active { display: flex; }
 
