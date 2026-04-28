@@ -297,6 +297,7 @@ function showModule(moduleId) {
 
 let chatUnsubscribe = null;
 let roomsUnsubscribe = null;
+let roomExistenceUnsubscribe = null; // 방 존재 여부 감시용
 let currentChatRoomId = null;
 
 // Chat User Profile State
@@ -452,7 +453,7 @@ async function loadChatRooms() {
 }
 
 async function deleteChatRoom(roomId) {
-  if (!confirm("정말로 이 방을 삭제하시겠습니까? 관련 메시지도 모두 삭제될 수 있습니다.")) return;
+  if (!confirm("정말로 이 방을 삭제하시겠습니까? 해당 방에 있는 모든 사용자가 자동으로 퇴장됩니다.")) return;
   
   try {
     await db.collection('chat_rooms').doc(roomId).delete();
@@ -542,6 +543,7 @@ async function leaveChatRoom() {
 
   if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
   if (participantUnsubscribe) { participantUnsubscribe(); participantUnsubscribe = null; }
+  if (roomExistenceUnsubscribe) { roomExistenceUnsubscribe(); roomExistenceUnsubscribe = null; }
   
   currentChatRoomId = null;
   hideAllScreens();
@@ -599,6 +601,16 @@ function initChatRoom() {
   if (!currentChatRoomId) return;
   
   if (chatUnsubscribe) chatUnsubscribe();
+  if (roomExistenceUnsubscribe) roomExistenceUnsubscribe();
+
+  // 🔥 방 존재 여부 실시간 감시 리스너
+  roomExistenceUnsubscribe = db.collection('chat_rooms').doc(currentChatRoomId)
+    .onSnapshot(doc => {
+      if (!doc.exists && currentChatRoomId) {
+        alert("관리자에 의해 채팅방이 삭제되었습니다. 로비로 이동합니다.");
+        leaveChatRoom();
+      }
+    });
   
   const chatMessages = document.getElementById('chat-messages');
   chatMessages.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">메시지를 불러오는 중...</div>';
