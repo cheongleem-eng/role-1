@@ -1,4 +1,4 @@
-# Project Blueprint: 제주항공 비상훈련 롤플레잉 시스템
+# Project Blueprint: 제주항공 객실훈련팀 통합포털
 
 ## 1. 개요 (Overview)
 이 애플리케이션은 제주항공 객실승무원들의 비상상황 대응 능력을 평가하고 훈련하기 위한 시스템입니다. PRAM, Interphone 조작 학습 및 상황별 롤플레잉 시나리오를 제공합니다.
