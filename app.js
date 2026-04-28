@@ -361,12 +361,6 @@ function loadChatRooms() {
   
   if (roomsUnsubscribe) roomsUnsubscribe();
   
-  // Firebase 설정 확인 경고
-  if (FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") {
-    roomListEl.innerHTML = '<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">⚠️ Firebase 설정(API Key 등)이 누락되었습니다.<br>app.js 상단을 수정해주세요.</div>';
-    return;
-  }
-  
   roomsUnsubscribe = db.collection('chat_rooms')
     .onSnapshot(snapshot => {
       roomListEl.innerHTML = '';
@@ -375,13 +369,11 @@ function loadChatRooms() {
         return;
       }
       
-      // 데이터를 불러온 후 자바스크립트에서 정렬 (색인 오류 방지)
       const rooms = [];
       snapshot.forEach(doc => {
         rooms.push({ id: doc.id, ...doc.data() });
       });
       
-      // 생성시간 역순 정렬
       rooms.sort((a, b) => {
         const timeA = a.createdAt ? a.createdAt.seconds : Date.now();
         const timeB = b.createdAt ? b.createdAt.seconds : Date.now();
@@ -404,21 +396,27 @@ function loadChatRooms() {
         }
 
         item.innerHTML = `
-          <div class="room-info">
+          <div class="room-info" style="pointer-events: none;">
             <span class="room-title">${room.title}</span>
             <span class="room-meta">생성일: ${time}</span>
           </div>
           <div class="room-actions">
-            <button class="btn-primary" style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);">입장</button>
+            <button class="btn-primary btn-join-room" data-id="${room.id}" data-title="${room.title}" style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);">입장</button>
             ${deleteBtn}
           </div>
         `;
-        item.onclick = () => joinChatRoom(room.id, room.title);
+        
+        // 전체 아이템 클릭 시 입장 (버튼 클릭도 버블링되므로 하나만 설정해도 되지만, 명확성을 위해 버튼 타겟팅)
+        item.onclick = (e) => {
+          // 삭제 버튼 클릭 시에는 무시 (stopPropagation이 이미 처리함)
+          joinChatRoom(room.id, room.title);
+        };
+        
         roomListEl.appendChild(item);
       });
     }, error => {
-      console.error("Firestore Listen Error:", error);
-      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">권한 또는 색인 오류가 발생했습니다.<br>${error.message}</div>`;
+      console.error("Firestore Listen Error (Rooms):", error);
+      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">목록 로딩 중 권한/색인 오류가 발생했습니다.<br>${error.message}</div>`;
     });
 }
 
@@ -426,8 +424,6 @@ async function deleteChatRoom(roomId) {
   if (!confirm("정말로 이 방을 삭제하시겠습니까? 관련 메시지도 모두 삭제될 수 있습니다.")) return;
   
   try {
-    // Note: In a production app, we should also delete subcollections (messages, participants)
-    // but for this prototype, deleting the room doc is sufficient to hide it.
     await db.collection('chat_rooms').doc(roomId).delete();
   } catch (e) {
     console.error("방 삭제 실패:", e);
@@ -468,23 +464,22 @@ async function joinChatRoom(roomId, roomTitle) {
   }
   
   currentChatRoomId = roomId;
-  
-  // Register participant
-  if (fbReady) {
-    try {
-      await db.collection('chat_rooms').doc(roomId).collection('participants').doc(chatState.name).set({
-        name: chatState.name,
-        group: chatState.group,
-        isAdmin: chatState.isAdmin,
-        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (e) { console.error("참여자 등록 실패:", e); }
-  }
 
+  // 화면 전환을 먼저 수행 (네트워크 지연 시에도 반응성 확보)
   hideAllScreens();
   document.getElementById('screen-chat').classList.add('active');
   document.getElementById('chat-room-title').innerHTML = `<i class="ph-fill ph-chats-circle"></i> ${roomTitle}`;
   
+  // Register participant (비동기 처리하지만 에러 핸들링은 함)
+  if (fbReady) {
+    db.collection('chat_rooms').doc(roomId).collection('participants').doc(chatState.name).set({
+      name: chatState.name,
+      group: chatState.group,
+      isAdmin: chatState.isAdmin,
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(e => console.error("참여자 등록 실패 (무시하고 계속):", e));
+  }
+
   initChatRoom();
   initParticipantListener();
 }
@@ -508,11 +503,15 @@ async function leaveChatRoom() {
 function initParticipantListener() {
   if (!currentChatRoomId || !fbReady) return;
   
+  if (participantUnsubscribe) participantUnsubscribe();
+  
   participantUnsubscribe = db.collection('chat_rooms').doc(currentChatRoomId).collection('participants')
     .onSnapshot(snapshot => {
       const participants = [];
       snapshot.forEach(doc => participants.push(doc.data()));
       updateParticipantUI(participants);
+    }, error => {
+      console.warn("참여자 목록 리스너 에러:", error);
     });
 }
 
@@ -568,7 +567,13 @@ function initChatRoom() {
       snapshot.forEach(doc => {
         renderEnhancedChatMessage(doc.data());
       });
-      chatMessages.scrollTo(0, chatMessages.scrollHeight);
+      // 최하단 스크롤
+      setTimeout(() => {
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+      }, 100);
+    }, error => {
+      console.error("메시지 리스너 에러:", error);
+      chatMessages.innerHTML = `<div style="text-align:center; padding:20px; color:#FF3B30; font-size:12px;">메시지 로딩 권한 오류: ${error.message}</div>`;
     });
 }
 
