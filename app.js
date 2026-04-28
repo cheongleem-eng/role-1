@@ -43,7 +43,6 @@ const EMOJI_MAP = {
 const SCORE_LABEL = { 1: '매우 불만족', 2: '불만족', 3: '보통', 4: '만족', 5: '매우 만족' };
 
 let db = null;
-let storage = null; // Storage 전역 변수 추가
 let fbReady = false;
 
 function initFirebase() {
@@ -51,9 +50,8 @@ function initFirebase() {
     if (typeof firebase !== 'undefined' && !firebase.apps.length) {
       firebase.initializeApp(FIREBASE_CONFIG);
       db = firebase.firestore();
-      storage = firebase.storage(); // Storage 초기화
       fbReady = true;
-      console.log('✅ Firebase (Firestore & Storage) 연결 성공');
+      console.log('✅ Firebase 연결 성공');
     }
   } catch (e) {
     console.warn('⚠️ Firebase 연결 실패 (오프라인 모드):', e.message);
@@ -666,22 +664,11 @@ function renderEnhancedChatMessage(msgId, data) {
   
   const messageText = isRecalled ? "메시지를 회수하였습니다." : data.text;
   
-  // 이미지 내용 생성
-  let contentHtml = `<div class="chat-bubble">${messageText}</div>`;
-  if (!isRecalled && data.imageUrl) {
-    contentHtml = `
-      <div class="chat-bubble image-bubble">
-        <img src="${data.imageUrl}" alt="공유 이미지" onclick="window.open(this.src)" style="max-width:100%; border-radius:12px; display:block; cursor:pointer;">
-        ${data.text ? `<div style="margin-top:8px;">${data.text}</div>` : ''}
-      </div>
-    `;
-  }
-
   msgWrapper.innerHTML = `
     ${(!isMe && !isRecalled) ? avatarHtml : ''}
     <div class="chat-message-content">
       ${(!isMe && !isRecalled) ? senderHtml : ''}
-      ${contentHtml}
+      <div class="chat-bubble">${messageText}</div>
       <div class="message-time">${isRecalled ? '' : time}</div>
     </div>
   `;
@@ -743,51 +730,6 @@ async function sendChatMessage() {
     });
   } catch (e) {
     console.error("메시지 전송 실패:", e);
-  }
-}
-
-async function handleChatFileUpload(input) {
-  const file = input.files[0];
-  if (!file || !fbReady || !currentChatRoomId) return;
-
-  // 1. 용량 제한 (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert("파일 크기는 5MB 이하여야 합니다.");
-    input.value = '';
-    return;
-  }
-
-  // 2. 동의 얻기
-  if (!confirm("선택한 사진을 채팅방에 업로드하시겠습니까?\n(업로드된 사진은 모든 참여자에게 공개됩니다.)")) {
-    input.value = '';
-    return;
-  }
-
-  showLoadingOverlay(true);
-  try {
-    // 3. Storage 업로드
-    const fileName = `${Date.now()}_${file.name}`;
-    const storageRef = storage.ref(`chat_images/${currentChatRoomId}/${fileName}`);
-    const snapshot = await storageRef.put(file);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-
-    // 4. Firestore 메시지 추가
-    await db.collection('chat_rooms').doc(currentChatRoomId).collection('messages').add({
-      text: "", // 텍스트 없이 이미지만 전송
-      imageUrl: downloadURL,
-      sender: chatState.name,
-      group: chatState.group,
-      isAdmin: chatState.isAdmin,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    console.log("사진 업로드 및 전송 완료");
-  } catch (e) {
-    console.error("사진 업로드 실패:", e);
-    alert("사진 업로드 중 오류가 발생했습니다: " + e.message);
-  } finally {
-    input.value = '';
-    showLoadingOverlay(false);
   }
 }
 
