@@ -385,11 +385,12 @@ function loadChatRooms() {
         
         const item = document.createElement('div');
         item.className = 'room-item';
+        item.style.cursor = 'pointer'; // 스타일 강제 추가
         
         let deleteBtn = '';
         if (chatState.isAdmin) {
           deleteBtn = `
-            <button class="btn-delete-room" onclick="event.stopPropagation(); deleteChatRoom('${room.id}')">
+            <button class="btn-delete-room" onclick="event.stopPropagation(); deleteChatRoom('${room.id}')" title="방 삭제">
               <i class="ph-bold ph-trash"></i>
             </button>
           `;
@@ -401,14 +402,17 @@ function loadChatRooms() {
             <span class="room-meta">생성일: ${time}</span>
           </div>
           <div class="room-actions">
-            <button class="btn-primary btn-join-room" data-id="${room.id}" data-title="${room.title}" style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);">입장</button>
+            <button class="btn-primary btn-join-room" 
+                    onclick="event.stopPropagation(); joinChatRoom('${room.id}', '${room.title}')"
+                    style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3); cursor:pointer;">
+              입장
+            </button>
             ${deleteBtn}
           </div>
         `;
         
-        // 전체 아이템 클릭 시 입장 (버튼 클릭도 버블링되므로 하나만 설정해도 되지만, 명확성을 위해 버튼 타겟팅)
-        item.onclick = (e) => {
-          // 삭제 버튼 클릭 시에는 무시 (stopPropagation이 이미 처리함)
+        // 전체 영역 클릭 시에도 입장 가능하도록 (버블링 이슈 대비)
+        item.onclick = () => {
           joinChatRoom(room.id, room.title);
         };
         
@@ -436,22 +440,31 @@ async function createNewChatRoom() {
   if (!title) return;
   
   try {
-    await db.collection('chat_rooms').add({
+    const docRef = await db.collection('chat_rooms').add({
       title: title,
       createdBy: "관리자",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    console.log("방 생성 성공:", docRef.id);
   } catch (e) {
     console.error("방 생성 실패:", e);
-    alert("방 생성에 실패했습니다.");
+    alert("방 생성에 실패했습니다: " + e.message);
   }
 }
 
 let participantUnsubscribe = null;
 
 async function joinChatRoom(roomId, roomTitle) {
+  console.log("입장 시도:", roomId, roomTitle);
+  
   // Validate profile
-  chatState.name = document.getElementById('chat-user-name').value.trim();
+  const nameInput = document.getElementById('chat-user-name');
+  if (!nameInput) {
+    console.error("이름 입력 필드를 찾을 수 없습니다.");
+    return;
+  }
+  
+  chatState.name = nameInput.value.trim();
   
   if (!chatState.name) {
     alert("입장 전 이름을 입력해주세요.");
@@ -465,23 +478,32 @@ async function joinChatRoom(roomId, roomTitle) {
   
   currentChatRoomId = roomId;
 
-  // 화면 전환을 먼저 수행 (네트워크 지연 시에도 반응성 확보)
-  hideAllScreens();
-  document.getElementById('screen-chat').classList.add('active');
-  document.getElementById('chat-room-title').innerHTML = `<i class="ph-fill ph-chats-circle"></i> ${roomTitle}`;
-  
-  // Register participant (비동기 처리하지만 에러 핸들링은 함)
-  if (fbReady) {
-    db.collection('chat_rooms').doc(roomId).collection('participants').doc(chatState.name).set({
-      name: chatState.name,
-      group: chatState.group,
-      isAdmin: chatState.isAdmin,
-      joinedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(e => console.error("참여자 등록 실패 (무시하고 계속):", e));
-  }
+  try {
+    // 화면 전환을 먼저 수행 (네트워크 지연 시에도 반응성 확보)
+    hideAllScreens();
+    document.getElementById('screen-chat').classList.add('active');
+    document.getElementById('chat-room-title').innerHTML = `<i class="ph-fill ph-chats-circle"></i> ${roomTitle}`;
+    
+    // Register participant
+    if (fbReady) {
+      // 이름 중복 방지를 위해 이름 뒤에 임의의 ID를 붙이지 않고, 
+      // 일단 기존 방식 유지하되 에러 로그 강화
+      await db.collection('chat_rooms').doc(roomId).collection('participants').doc(chatState.name).set({
+        name: chatState.name,
+        group: chatState.group,
+        isAdmin: chatState.isAdmin,
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
 
-  initChatRoom();
-  initParticipantListener();
+    initChatRoom();
+    initParticipantListener();
+  } catch (e) {
+    console.error("방 입장 중 오류 발생:", e);
+    alert("방 입장에 실패했습니다: " + e.message);
+    // 실패 시 다시 로비로
+    showModule('chat-lobby');
+  }
 }
 
 async function leaveChatRoom() {
