@@ -355,83 +355,100 @@ function promptChatAdminLogin() {
   }
 }
 
-function loadChatRooms() {
+async function loadChatRooms() {
   const roomListEl = document.getElementById('chat-room-list');
   const refreshIcon = document.getElementById('icon-refresh');
   
   if (refreshIcon) refreshIcon.classList.add('spinning');
   
-  roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">방 목록을 불러오는 중...</div>';
+  // 로딩 상태 표시
+  roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">서버에서 방 목록을 가져오는 중...</div>';
   
+  if (!fbReady) {
+    roomListEl.innerHTML = '<div style="text-align: center; color: #FF3B30; padding: 20px;">Firebase 연결 대기 중... 잠시 후 다시 시도해 주세요.</div>';
+    if (refreshIcon) refreshIcon.classList.remove('spinning');
+    return;
+  }
+
+  // 1. 기존 리스너 제거
   if (roomsUnsubscribe) {
     roomsUnsubscribe();
     roomsUnsubscribe = null;
   }
   
-  roomsUnsubscribe = db.collection('chat_rooms')
-    .onSnapshot(snapshot => {
-      console.log("방 목록 업데이트 수신:", snapshot.size, "개의 방");
-      if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('spinning'), 500);
-      
-      roomListEl.innerHTML = '';
-      if (snapshot.empty) {
-        roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">현재 개설된 방이 없습니다.</div>';
-        return;
-      }
-      
-      const rooms = [];
-      snapshot.forEach(doc => {
-        rooms.push({ id: doc.id, ...doc.data() });
-      });
-      
-      rooms.sort((a, b) => {
-        const timeA = (a.createdAt && a.createdAt.seconds) ? a.createdAt.seconds : Date.now() / 1000;
-        const timeB = (b.createdAt && b.createdAt.seconds) ? b.createdAt.seconds : Date.now() / 1000;
-        return timeB - timeA;
-      });
-
-      rooms.forEach(room => {
-        const time = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '방금 전';
+  try {
+    // 2. 초기 데이터 1회 강제 로드 (안정성 확보)
+    const initialSnap = await db.collection('chat_rooms').get();
+    console.log("초기 방 목록 로드 성공:", initialSnap.size, "건");
+    
+    // 3. 실시간 리스너 연결
+    roomsUnsubscribe = db.collection('chat_rooms')
+      .onSnapshot(snapshot => {
+        console.log("Firestore 변경 감지:", snapshot.size, "개의 방 존재");
+        if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('spinning'), 500);
         
-        const item = document.createElement('div');
-        item.className = 'room-item';
-        item.style.cursor = 'pointer';
-        
-        let deleteBtn = '';
-        if (chatState.isAdmin) {
-          deleteBtn = `
-            <button class="btn-delete-room" onclick="event.stopPropagation(); deleteChatRoom('${room.id}')" title="방 삭제">
-              <i class="ph-bold ph-trash"></i>
-            </button>
-          `;
+        roomListEl.innerHTML = '';
+        if (snapshot.empty) {
+          roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">현재 개설된 방이 없습니다.<br><span style="font-size:11px;">관리자가 먼저 방을 생성해야 합니다.</span></div>';
+          return;
         }
+        
+        const rooms = [];
+        snapshot.forEach(doc => {
+          rooms.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // 정렬: 생성일 내림차순 (최신순)
+        rooms.sort((a, b) => {
+          const timeA = a.createdAt ? a.createdAt.toMillis() : Date.now();
+          const timeB = b.createdAt ? b.createdAt.toMillis() : Date.now();
+          return timeB - timeA;
+        });
 
-        item.innerHTML = `
-          <div class="room-info" style="pointer-events: none;">
-            <span class="room-title">${room.title}</span>
-            <span class="room-meta">생성일: ${time}</span>
-          </div>
-          <div class="room-actions">
-            <button class="btn-primary btn-join-room" 
-                    onclick="event.stopPropagation(); joinChatRoom('${room.id}', '${room.title}')"
-                    style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3); cursor:pointer;">
-              입장
-            </button>
-            ${deleteBtn}
-          </div>
-        `;
-        
-        item.onclick = () => {
-          joinChatRoom(room.id, room.title);
-        };
-        
-        roomListEl.appendChild(item);
+        rooms.forEach(room => {
+          const time = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '방금 전';
+          
+          const item = document.createElement('div');
+          item.className = 'room-item';
+          item.style.cursor = 'pointer';
+          
+          let deleteBtn = '';
+          if (chatState.isAdmin) {
+            deleteBtn = `
+              <button class="btn-delete-room" onclick="event.stopPropagation(); deleteChatRoom('${room.id}')" title="방 삭제">
+                <i class="ph-bold ph-trash"></i>
+              </button>
+            `;
+          }
+
+          item.innerHTML = `
+            <div class="room-info" style="pointer-events: none;">
+              <span class="room-title">${room.title}</span>
+              <span class="room-meta">생성일: ${time}</span>
+            </div>
+            <div class="room-actions">
+              <button class="btn-primary btn-join-room" 
+                      onclick="event.stopPropagation(); joinChatRoom('${room.id}', '${room.title}')"
+                      style="padding: 8px 20px; border:none; border-radius:12px; font-size:13px; font-weight:800; background:var(--jeju-orange); color:white; cursor:pointer;">
+                입장
+              </button>
+              ${deleteBtn}
+            </div>
+          `;
+          
+          item.onclick = () => joinChatRoom(room.id, room.title);
+          roomListEl.appendChild(item);
+        });
+      }, error => {
+        if (refreshIcon) refreshIcon.classList.remove('spinning');
+        console.error("Firestore Listen Error (Rooms):", error);
+        roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">서버 접근 권한 오류가 발생했습니다.<br>${error.message}</div>`;
       });
-    }, error => {
-      if (refreshIcon) refreshIcon.classList.remove('spinning');
-      console.error("Firestore Listen Error (Rooms):", error);
-      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">목록 로딩 중 오류가 발생했습니다.<br>${error.message}</div>`;
-    });
+  } catch (e) {
+    if (refreshIcon) refreshIcon.classList.remove('spinning');
+    console.error("loadChatRooms 예외 발생:", e);
+    roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">목록 로드 중 오류 발생: ${e.message}</div>`;
+  }
 }
 
 async function deleteChatRoom(roomId) {
