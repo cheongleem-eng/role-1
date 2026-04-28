@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>제주항공 객실훈련팀 통합포털</title>
-  <link rel="stylesheet" href="style.css?v=3.0" />
+  <link rel="stylesheet" href="style.css?v=4.0" />
   <!-- 🔥 Firebase SDK (compat version — Firebase Studio 호환) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <!-- SheetJS for Excel Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <!-- Phosphor Icons -->
@@ -427,6 +428,10 @@
       </div>
       
       <div class="chat-input-area">
+        <button class="btn-add-media" onclick="document.getElementById('chat-file-input').click()">
+          <i class="ph-bold ph-plus"></i>
+        </button>
+        <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="handleChatFileUpload(this)">
         <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
         <button class="btn-send" onclick="sendChatMessage()">
           <i class="ph-fill ph-paper-plane-right"></i>
@@ -448,7 +453,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=3.0"></script>
-  <script src="app.js?v=3.0"></script>
+  <script src="main.js?v=4.0"></script>
+  <script src="app.js?v=4.0"></script>
   </body>
   </html>
