@@ -357,12 +357,22 @@ function promptChatAdminLogin() {
 
 function loadChatRooms() {
   const roomListEl = document.getElementById('chat-room-list');
+  const refreshIcon = document.getElementById('icon-refresh');
+  
+  if (refreshIcon) refreshIcon.classList.add('spinning');
+  
   roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">방 목록을 불러오는 중...</div>';
   
-  if (roomsUnsubscribe) roomsUnsubscribe();
+  if (roomsUnsubscribe) {
+    roomsUnsubscribe();
+    roomsUnsubscribe = null;
+  }
   
   roomsUnsubscribe = db.collection('chat_rooms')
     .onSnapshot(snapshot => {
+      console.log("방 목록 업데이트 수신:", snapshot.size, "개의 방");
+      if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('spinning'), 500);
+      
       roomListEl.innerHTML = '';
       if (snapshot.empty) {
         roomListEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">현재 개설된 방이 없습니다.</div>';
@@ -375,8 +385,8 @@ function loadChatRooms() {
       });
       
       rooms.sort((a, b) => {
-        const timeA = a.createdAt ? a.createdAt.seconds : Date.now();
-        const timeB = b.createdAt ? b.createdAt.seconds : Date.now();
+        const timeA = (a.createdAt && a.createdAt.seconds) ? a.createdAt.seconds : Date.now() / 1000;
+        const timeB = (b.createdAt && b.createdAt.seconds) ? b.createdAt.seconds : Date.now() / 1000;
         return timeB - timeA;
       });
 
@@ -385,7 +395,7 @@ function loadChatRooms() {
         
         const item = document.createElement('div');
         item.className = 'room-item';
-        item.style.cursor = 'pointer'; // 스타일 강제 추가
+        item.style.cursor = 'pointer';
         
         let deleteBtn = '';
         if (chatState.isAdmin) {
@@ -411,7 +421,6 @@ function loadChatRooms() {
           </div>
         `;
         
-        // 전체 영역 클릭 시에도 입장 가능하도록 (버블링 이슈 대비)
         item.onclick = () => {
           joinChatRoom(room.id, room.title);
         };
@@ -419,8 +428,9 @@ function loadChatRooms() {
         roomListEl.appendChild(item);
       });
     }, error => {
+      if (refreshIcon) refreshIcon.classList.remove('spinning');
       console.error("Firestore Listen Error (Rooms):", error);
-      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">목록 로딩 중 권한/색인 오류가 발생했습니다.<br>${error.message}</div>`;
+      roomListEl.innerHTML = `<div style="text-align: center; color: #FF3B30; padding: 20px; font-size:12px;">목록 로딩 중 오류가 발생했습니다.<br>${error.message}</div>`;
     });
 }
 

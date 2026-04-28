@@ -368,8 +368,13 @@
 
       <div class="chat-rooms-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3 style="font-size: 16px;">참여 가능한 방</h3>
-          <button id="btn-create-room" class="btn-outline" style="display: none; padding: 6px 12px; font-size: 12px;" onclick="createNewChatRoom()">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="font-size: 16px; color: white;">참여 가능한 방</h3>
+            <button class="btn-icon" onclick="loadChatRooms()" title="새로고침" style="font-size: 18px; color: var(--jeju-orange);">
+              <i id="icon-refresh" class="ph-bold ph-arrows-clockwise"></i>
+            </button>
+          </div>
+          <button id="btn-create-room" class="btn-outline" style="display: none; width: auto; padding: 6px 12px; font-size: 12px; border-color: var(--jeju-orange); color: var(--jeju-orange);" onclick="createNewChatRoom()">
             <i class="ph-bold ph-plus"></i> 방 만들기
           </button>
         </div>
