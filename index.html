@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>제주항공 비상훈련 롤플레잉</title>
-  <link rel="stylesheet" href="style.css?v=1.9" />
+  <link rel="stylesheet" href="style.css?v=2.0" />
   <!-- 🔥 Firebase SDK (compat version — Firebase Studio 호환) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -115,6 +115,20 @@
 
   <!-- ===================== LOGIN SCREEN ===================== -->
   <div id="screen-login" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-caret-left"></i>
+        </button>
+      </div>
+      <div class="header-center">Role-Playing Login</div>
+      <div class="header-right">
+        <button class="btn-icon" onclick="goHome()">
+          <i class="ph ph-house"></i>
+        </button>
+      </div>
+    </header>
+
     <div class="login-wrapper">
       <div class="login-card">
         <div class="logo-wrap">
@@ -434,7 +448,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=1.9"></script>
-  <script src="app.js?v=1.9"></script>
-</body>
-</html>
+  <script src="main.js?v=2.0"></script>
+  <script src="app.js?v=2.0"></script>
+  </body>
+  </html>
