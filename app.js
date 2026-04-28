@@ -614,7 +614,7 @@ function initChatRoom() {
       }
       
       snapshot.forEach(doc => {
-        renderEnhancedChatMessage(doc.data());
+        renderEnhancedChatMessage(doc.id, doc.data());
       });
       // 최하단 스크롤
       setTimeout(() => {
@@ -626,13 +626,13 @@ function initChatRoom() {
     });
 }
 
-function renderEnhancedChatMessage(data) {
+function renderEnhancedChatMessage(msgId, data) {
   const chatMessages = document.getElementById('chat-messages');
-  // Admin message check: either data.isAdmin is true OR sender name is "관리자"
   const isMe = data.sender === chatState.name;
+  const isRecalled = data.isRecalled === true;
   
   const msgWrapper = document.createElement('div');
-  msgWrapper.className = `chat-message-wrapper ${isMe ? 'sent' : 'received'}`;
+  msgWrapper.className = `chat-message-wrapper ${isMe ? 'sent' : 'received'} ${isRecalled ? 'recalled' : ''}`;
   
   const time = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
   
@@ -640,25 +640,67 @@ function renderEnhancedChatMessage(data) {
   let avatarHtml = '';
   let senderHtml = '';
   
-  if (data.isAdmin) {
-    avatarHtml = `<div class="chat-avatar admin-avatar">관</div>`;
-    senderHtml = `<div class="chat-message-sender admin-sender"><i class="ph-fill ph-crown"></i> 관리자</div>`;
-  } else {
-    const gColor = chatState.groupColors[data.group] || '#71717A';
-    avatarHtml = `<div class="chat-avatar" style="--g-color: ${gColor};">${data.group}조</div>`;
-    senderHtml = `<div class="chat-message-sender">${data.group}조: ${data.sender}</div>`;
+  if (!isRecalled) {
+    if (data.isAdmin) {
+      avatarHtml = `<div class="chat-avatar admin-avatar">관</div>`;
+      senderHtml = `<div class="chat-message-sender admin-sender"><i class="ph-fill ph-crown"></i> 관리자</div>`;
+    } else {
+      const gColor = chatState.groupColors[data.group] || '#71717A';
+      avatarHtml = `<div class="chat-avatar" style="--g-color: ${gColor};">${data.group}조</div>`;
+      senderHtml = `<div class="chat-message-sender">${data.group}조: ${data.sender}</div>`;
+    }
   }
   
+  const messageText = isRecalled ? "메시지를 회수하였습니다." : data.text;
+  
   msgWrapper.innerHTML = `
-    ${!isMe ? avatarHtml : ''}
+    ${(!isMe && !isRecalled) ? avatarHtml : ''}
     <div class="chat-message-content">
-      ${!isMe ? senderHtml : ''}
-      <div class="chat-bubble">${data.text}</div>
-      <div class="message-time">${time}</div>
+      ${(!isMe && !isRecalled) ? senderHtml : ''}
+      <div class="chat-bubble">${messageText}</div>
+      <div class="message-time">${isRecalled ? '' : time}</div>
     </div>
   `;
+
+  // 롱프레스 기능 (내가 보낸 메시지이고 회수되지 않은 경우에만)
+  if (isMe && !isRecalled) {
+    let longPressTimer;
+    const bubble = msgWrapper.querySelector('.chat-bubble');
+    
+    const startPress = () => {
+      longPressTimer = setTimeout(() => {
+        if (confirm("이 메시지를 회수하시겠습니까?")) {
+          recallChatMessage(msgId);
+        }
+      }, 800); // 0.8초간 누르면 발동
+    };
+    
+    const cancelPress = () => {
+      clearTimeout(longPressTimer);
+    };
+
+    bubble.addEventListener('touchstart', startPress);
+    bubble.addEventListener('touchend', cancelPress);
+    bubble.addEventListener('mousedown', startPress);
+    bubble.addEventListener('mouseup', cancelPress);
+    bubble.addEventListener('mouseleave', cancelPress);
+  }
   
   chatMessages.appendChild(msgWrapper);
+}
+
+async function recallChatMessage(msgId) {
+  if (!fbReady || !currentChatRoomId) return;
+  try {
+    await db.collection('chat_rooms').doc(currentChatRoomId).collection('messages').doc(msgId).update({
+      isRecalled: true,
+      text: "메시지를 회수하였습니다.",
+      recalledAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    console.error("메시지 회수 실패:", e);
+    alert("메시지 회수에 실패했습니다.");
+  }
 }
 
 async function sendChatMessage() {

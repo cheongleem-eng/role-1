@@ -81,14 +81,12 @@ body::before {
    ============================================================ */
 #screen-login {
   background: transparent;
-  justify-content: center;
-  align-items: center;
   padding: 0;
 }
 
 .login-wrapper {
+  flex: 1; /* 화면의 남은 공간을 꽉 채움 */
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -229,8 +227,25 @@ body::before {
   color: white;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 60px;
 }
-.header-center { font-size: 13px; font-weight: 600; letter-spacing: -0.5px; }
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  min-width: 60px; /* 양쪽 공간 확보하여 중앙 정렬 유지 */
+}
+.header-right { justify-content: flex-end; }
+.header-center { 
+  flex: 1; 
+  text-align: center;
+  font-size: 14px; 
+  font-weight: 700; 
+  letter-spacing: -0.5px; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
+}
 
 .phase-nav { 
   display: flex; 
@@ -1121,6 +1136,28 @@ body::before {
   box-shadow: 0 4px 15px rgba(255, 80, 0, 0.3);
 }
 
+/* 회수된 메시지 스타일 */
+.chat-message-wrapper.recalled {
+  max-width: 100%;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.recalled .chat-bubble {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-style: italic;
+  box-shadow: none;
+  border-radius: 12px !important;
+  padding: 8px 16px;
+}
+
+.recalled .chat-message-content {
+  align-items: center;
+}
+
 .chat-message-sender {
   font-size: 11px;
   font-weight: 800;
@@ -1143,22 +1180,34 @@ body::before {
 
 /* 채팅 입력창을 하단 네비게이션 스타일과 통일 */
 .chat-input-area {
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
   background: rgba(21, 25, 40, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 #chat-input {
+  flex: 1;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  border-radius: 18px;
   color: white;
-  padding: 12px 16px;
+  padding: 0 20px;
+  height: 52px;
+  font-size: 15px;
   font-weight: 600;
+  outline: none;
+  transition: all 0.3s;
+}
+
+#chat-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--jeju-orange);
+  box-shadow: 0 0 15px rgba(255, 80, 0, 0.2);
 }
 
 #chat-input::placeholder {
@@ -1167,10 +1216,19 @@ body::before {
 
 .btn-send {
   background: var(--jeju-orange);
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
   box-shadow: 0 4px 12px rgba(255, 80, 0, 0.4);
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 /* 관리자 왕관 표시 강화 */
